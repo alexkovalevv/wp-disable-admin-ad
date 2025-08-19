@@ -1,0 +1,16 @@
+# Copyright (C) 2025 Alex Kovalevv
+# This file is distributed under the same license as the Disable Admin Ad plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Disable Admin Ad 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com\n"
+"POT-Creation-Date: 2025-08-19 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: agent\n"
+
+#: src/Core/Plugin.php:1
+msgid "Disable Admin Ad"
+msgstr ""
+

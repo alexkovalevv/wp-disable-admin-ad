@@ -1,0 +1,42 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+build/
+dist/
+.coverage/
+coverage/
+.sass-cache/
+
+# PHP / Composer
+vendor/
+composer.lock
+.phpunit.cache/
+.php_cs.cache
+.php-cs-fixer.cache
+
+# IDE / Editors
+.vscode/
+.idea/
+*.iml
+*.code-workspace
+
+# Env / Secrets
+.env
+.env.*
+*.local
+
+# Misc
+*.log
+*.cache
+*.tmp
+
