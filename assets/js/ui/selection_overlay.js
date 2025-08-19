@@ -83,9 +83,17 @@ export class Selection_Overlay {
 
     toggle(active) {
         this.state.set_active(active)
+        // persist selection mode flag across reloads
+        try { sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', active ? '1' : '0') } catch (_) {}
         if (!active) {
             this.state.set_hover_target(null)
             this.state.set_selected_target(null)
+            this.close_context_menu()
+            // hide overlays and badge explicitly
+            if (this.hover_mask) this.hover_mask.style.display = 'none'
+            if (this.selected_mask) this.selected_mask.style.display = 'none'
+            if (this.hide_button) this.hide_button.style.display = 'none'
+            if (this.badge) this.badge.style.display = 'none'
         }
         this.update_visibility()
     }
@@ -98,6 +106,9 @@ export class Selection_Overlay {
         }
         if (this.hint_box) {
             this.hint_box.style.display = on ? 'block' : 'none'
+        }
+        if (!on && this.badge) {
+            this.badge.style.display = 'none'
         }
         // Hide button visible only when a target is selected
         if (this.hide_button) {
@@ -114,6 +125,8 @@ export class Selection_Overlay {
 
     on_mouse_move(e) {
         if (!this.state.active) return
+        // If a block is already selected, do not allow inner hover/selection
+        if (this.state.selected_target) return
         // Ignore hover when interacting with our UI
         if (this.is_ui_event(e)) return
         const target = this.pick_target(e)
@@ -179,13 +192,11 @@ export class Selection_Overlay {
         if (el.classList.contains('aidad-overlay') || el.classList.contains('aidad-hide-button') || el.classList.contains('aidad-dim') || el.closest('.aidad-context-menu') || el.closest('.aidad-hint')) {
             return null
         }
-        // If we already selected a container and user points inside it, allow selecting inner elements
-        if (this.state.selected_target && this.state.selected_target instanceof Element) {
-            if (this.state.selected_target.contains(el)) {
-                return el
-            }
+        // If a block is already selected, do not allow selecting inner elements until user exits selection or reselects
+        if (this.state.selected_target) {
+            return null
         }
-        // Prefer selecting notice container in WP admin notices only when not drilling down
+        // Prefer selecting notice container in WP admin notices
         const notice = el.closest('.notice, .update-nag')
         if (notice) return notice
         // Exclude Gutenberg editable canvas if needed
