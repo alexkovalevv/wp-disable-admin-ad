@@ -1,16 +1,173 @@
 # Copyright (C) 2025 Alex Kovalevv
-# This file is distributed under the same license as the Disable Admin Ad plugin.
+# This file is distributed under the same license as the Disable Admin Ad & ad blocker plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Disable Admin Ad 1.0.0\n"
-"Report-Msgid-Bugs-To: https://example.com\n"
-"POT-Creation-Date: 2025-08-19 00:00+0000\n"
+"Project-Id-Version: Disable Admin Ad & ad blocker 1.0.17\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/disable-admin-ad\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: agent\n"
+"POT-Creation-Date: 2025-08-20T06:30:54+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: disable-admin-ad\n"
 
-#: src/Core/Plugin.php:1
+#. Plugin Name of the plugin
+#: disable-admin-ad.php
+msgid "Disable Admin Ad & ad blocker"
+msgstr ""
+
+#. Description of the plugin
+#: disable-admin-ad.php
+msgid "Hides HTML ad blocks in the WordPress admin panel using saved XPath rules. Enables element selection mode, output buffering, and settings."
+msgstr ""
+
+#. Author of the plugin
+#: disable-admin-ad.php
+msgid "Alex Kovalevv"
+msgstr ""
+
+#: src/Admin/Admin_Bar_Controller.php:36
+msgid "Selector"
+msgstr ""
+
+#: src/Admin/Admin_Bar_Controller.php:39
+msgid "Toggle selection mode"
+msgstr ""
+
+#: src/Admin/Selection_Mode_Controller.php:107
+#: src/Admin/Selection_Mode_Controller.php:119
+#: src/Admin/Selection_Mode_Controller.php:135
+#: src/Admin/Selection_Mode_Controller.php:155
+#: src/Admin/Selection_Mode_Controller.php:171
+#: src/Admin/Selection_Mode_Controller.php:183
+msgid "Invalid nonce"
+msgstr ""
+
+#: src/Admin/Selection_Mode_Controller.php:144
+#: src/Admin/Selection_Mode_Controller.php:160
+msgid "Rule not found"
+msgstr ""
+
+#: src/Admin/Selection_Mode_Controller.php:189
+#: src/Admin/Selection_Mode_Controller.php:204
+msgid "Invalid XPath"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:29
+#: src/Settings/Settings_Page.php:30
+#: src/Settings/Settings_Page.php:47
 msgid "Disable Admin Ad"
 msgstr ""
 
+#: src/Settings/Settings_Page.php:42
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: src/Settings/Settings_Page.php:56
+msgid "Rules"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:57
+msgid "Manage XPath rules below. Use the admin bar target icon to add rules interactively."
+msgstr ""
+
+#: src/Settings/Settings_Page.php:62
+msgid "Are you sure you want to reset all rules?"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:63
+msgid "Reset all rules"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:68
+msgid "Logging"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:74
+msgid "Enable logging"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:77
+msgid "Keep last N entries"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:80
+msgid "Save logging settings"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:107
+msgid "Use the “Selector” in the admin bar to highlight a block, click it, then choose a hide duration. The block will be hidden or removed (depending on settings). You can edit XPath, labels, and expiry below, delete individual rules, or reset all rules if needed."
+msgstr ""
+
+#: src/Settings/Settings_Page.php:124
+msgid "Active"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:125
+msgid "XPath"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:126
+msgid "Period"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:127
+msgid "Author"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:128
+msgid "Created"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:129
+msgid "Actions"
+msgstr ""
+
+#. translators: %s: human time diff
+#: src/Settings/Settings_Page.php:136
+msgid "Until %s"
+msgstr ""
+
+#. translators: %s: human time diff
+#: src/Settings/Settings_Page.php:137
+msgid "Forever"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:154
+msgid "Save"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:155
+msgid "Cancel"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:163
+msgid "Edit"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:168
+msgid "Deactivate"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:168
+msgid "Activate"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:174
+msgid "Delete this rule?"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:174
+msgid "Delete"
+msgstr ""
+
+#: src/Settings/Settings_Page.php:192
+#: src/Settings/Settings_Page.php:206
+#: src/Settings/Settings_Page.php:222
+#: src/Settings/Settings_Page.php:246
+#: src/Settings/Settings_Page.php:267
+msgid "Insufficient permissions"
+msgstr ""

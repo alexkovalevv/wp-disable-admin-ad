@@ -2,6 +2,7 @@
 import { Api_Client } from './services/api_client.js'
 import { Selection_State } from './state/selection_state.js'
 import { Selection_Overlay } from './ui/selection_overlay.js'
+import { __ } from '@wordpress/i18n'
 
 (function init_aidad() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
@@ -10,11 +11,11 @@ import { Selection_Overlay } from './ui/selection_overlay.js'
   const api = new Api_Client(cfg.rest_url || '', cfg.nonce || '')
   const state = new Selection_State()
   const overlay = new Selection_Overlay({ ui: cfg.ui, i18n: {
-    hide: 'Скрыть блок',
-    no_match: 'XPath не находит элементы на этой странице',
-    save_failed: 'Ошибка сохранения правила',
-    hint_title: 'Режим выбора включен',
-    hint_text: 'Наведите курсор на блок, затем кликните и выберите срок скрытия. Нажмите Esc или «Выйти из режима» для выхода. Если скрыли важное — используйте «Сбросить все».',
+    hide: __('Hide block', 'disable-admin-ad'),
+    no_match: __('XPath does not match elements on this page', 'disable-admin-ad'),
+    save_failed: __('Failed to save the rule', 'disable-admin-ad'),
+    hint_title: __('Selection mode is ON', 'disable-admin-ad'),
+    hint_text: __('Hover a block, click it, then choose hide duration. Press Esc or “Exit mode” to leave. If you hid something important — use “Reset all”.', 'disable-admin-ad'),
   } }, api, state)
 
   overlay.init()
@@ -36,7 +37,7 @@ import { Selection_Overlay } from './ui/selection_overlay.js'
       icon.classList.toggle('aidad-active', state.active)
       return false
     })
-    icon.title = state.active ? 'Selection: ON' : 'Selection: OFF'
+    icon.title = state.active ? __('Selection: ON', 'disable-admin-ad') : __('Selection: OFF', 'disable-admin-ad')
   }
 
   if (document.readyState === 'loading') {

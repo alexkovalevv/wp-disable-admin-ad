@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Disable Admin Ad
- * Description: Скрывает рекламные HTML-блоки в админ-панели WordPress по сохранённым XPath-правилам. Включает режим выбора элементов, буферизацию вывода и настройки.
+ * Plugin Name: Disable Admin Ad & ad blocker
+ * Description: Hides HTML ad blocks in the WordPress admin panel using saved XPath rules. Enables element selection mode, output buffering, and settings.
  * Author: Alex Kovalevv
- * Version: 1.0.15
+ * Version: 1.0.18
  * Requires PHP: 8.0
  * Requires at least: 6.0
  * Text Domain: disable-admin-ad
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 // Define plugin constants.
 const AIDAD_PLUGIN_FILE = __FILE__;
 const AIDAD_PLUGIN_DIR = __DIR__;
-const AIDAD_PLUGIN_VERSION = '1.0.15';
+const AIDAD_PLUGIN_VERSION = '1.0.18';
 
 if (!defined('AIDAD_PLUGIN_URL')) {
     define('AIDAD_PLUGIN_URL', plugin_dir_url(__FILE__));

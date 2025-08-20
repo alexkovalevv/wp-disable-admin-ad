@@ -2,6 +2,7 @@
 // Handles overlay rendering and interactions without mutating page DOM structure.
 import {Xpath_Builder} from '../core/xpath_builder.js'
 import {Xpath_Tester} from '../core/xpath_tester.js'
+import {__} from '@wordpress/i18n'
 
 export class Selection_Overlay {
     constructor(config, api, state) {
@@ -9,12 +10,12 @@ export class Selection_Overlay {
         this.api = api
         this.state = state
 
-    this.dim_el = null
-    this.hover_mask = null
-    this.selected_mask = null
-    this.hide_button = null
-    this.hint_box = null
-    this.badge = null
+        this.dim_el = null
+        this.hover_mask = null
+        this.selected_mask = null
+        this.hide_button = null
+        this.hint_box = null
+        this.badge = null
 
         this.bound_mousemove = this.on_mouse_move.bind(this)
         this.bound_click = this.on_click.bind(this)
@@ -23,39 +24,39 @@ export class Selection_Overlay {
 
     init() {
         if (this.hover_mask) return
-    this.hover_mask = document.createElement('div')
-    this.hover_mask.className = 'aidad-overlay aidad-hover-mask'
-    this.selected_mask = document.createElement('div')
-    this.selected_mask.className = 'aidad-overlay aidad-selected-mask'
-    this.hide_button = document.createElement('button')
+        this.hover_mask = document.createElement('div')
+        this.hover_mask.className = 'aidad-overlay aidad-hover-mask'
+        this.selected_mask = document.createElement('div')
+        this.selected_mask.className = 'aidad-overlay aidad-selected-mask'
+        this.hide_button = document.createElement('button')
         this.hide_button.type = 'button'
         this.hide_button.className = 'aidad-hide-button'
-        this.hide_button.textContent = this.config.i18n?.hide || 'Скрыть блок'
+        this.hide_button.textContent = this.config.i18n?.hide || __('Hide block', 'disable-admin-ad')
         this.hide_button.addEventListener('click', (e) => this.toggle_context_menu(e))
 
-    this.context_menu = document.createElement('div')
-    this.context_menu.className = 'aidad-context-menu'
-    this.context_menu.style.display = 'none'
-    this.menu_items = [
-        { label: 'Скрыть навсегда', seconds: 0},
-        { label: 'На день', seconds: 86400},
-        { label: 'На неделю', seconds: 604800},
-        { label: 'На месяц', seconds: 2592000},
-    ]
-    this.context_menu.innerHTML = this.menu_items.map((it, idx) => `<button type="button" class="aidad-context-menu__item" data-seconds="${it.seconds}">${it.label}</button>`).join('')
+        this.context_menu = document.createElement('div')
+        this.context_menu.className = 'aidad-context-menu'
+        this.context_menu.style.display = 'none'
+        this.menu_items = [
+            {label: __('Hide forever', 'disable-admin-ad'), seconds: 0},
+            {label: __('For a day', 'disable-admin-ad'), seconds: 86400},
+            {label: __('For a week', 'disable-admin-ad'), seconds: 604800},
+            {label: __('For a month', 'disable-admin-ad'), seconds: 2592000},
+        ]
+        this.context_menu.innerHTML = this.menu_items.map((it, idx) => `<button type="button" class="aidad-context-menu__item" data-seconds="${it.seconds}">${it.label}</button>`).join('')
 
-    document.body.appendChild(this.hover_mask)
-    document.body.appendChild(this.selected_mask)
-    document.body.appendChild(this.hide_button)
-    document.body.appendChild(this.context_menu)
+        document.body.appendChild(this.hover_mask)
+        document.body.appendChild(this.selected_mask)
+        document.body.appendChild(this.hide_button)
+        document.body.appendChild(this.context_menu)
 
-    // hover badge
-    this.badge = document.createElement('div')
-    this.badge.className = 'aidad-badge'
-    this.badge.style.display = 'none'
-    document.body.appendChild(this.badge)
+        // hover badge
+        this.badge = document.createElement('div')
+        this.badge.className = 'aidad-badge'
+        this.badge.style.display = 'none'
+        document.body.appendChild(this.badge)
 
-    this.create_hint_box()
+        this.create_hint_box()
 
         this.attach_listeners()
         this.update_visibility()
@@ -66,7 +67,7 @@ export class Selection_Overlay {
         for (const el of [this.hover_mask, this.selected_mask, this.hide_button, this.context_menu, this.hint_box, this.badge]) {
             if (el && el.parentNode) el.parentNode.removeChild(el)
         }
-    this.hover_mask = this.selected_mask = this.hide_button = this.context_menu = this.hint_box = this.badge = null
+        this.hover_mask = this.selected_mask = this.hide_button = this.context_menu = this.hint_box = this.badge = null
     }
 
     attach_listeners() {
@@ -84,7 +85,10 @@ export class Selection_Overlay {
     toggle(active) {
         this.state.set_active(active)
         // persist selection mode flag across reloads
-        try { sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', active ? '1' : '0') } catch (_) {}
+        try {
+            sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', active ? '1' : '0')
+        } catch (_) {
+        }
         if (!active) {
             this.state.set_hover_target(null)
             this.state.set_selected_target(null)
@@ -101,7 +105,7 @@ export class Selection_Overlay {
     update_visibility() {
         const on = this.state.active
         // Overlays depend only on active state
-    for (const el of [this.hover_mask, this.selected_mask]) {
+        for (const el of [this.hover_mask, this.selected_mask]) {
             if (el) el.style.display = on ? 'block' : 'none'
         }
         if (this.hint_box) {
@@ -154,16 +158,16 @@ export class Selection_Overlay {
             const primaryXpath = Xpath_Builder.build_from_element(target)
             const t = Xpath_Tester.test(primaryXpath)
             // eslint-disable-next-line no-console
-            console.groupCollapsed('[Aidad] Выбор блока')
+            console.groupCollapsed('[Aidad] Block selection')
             // eslint-disable-next-line no-console
-            console.log('Элемент:', target)
+            console.log('Element:', target)
             // eslint-disable-next-line no-console
-            console.log('Первичный XPath:', primaryXpath, 'Тест:', t)
+            console.log('Initial XPath:', primaryXpath, 'Test:', t)
             // eslint-disable-next-line no-console
             console.groupEnd()
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.warn('[Aidad] Ошибка при построении первичного XPath в on_click:', err)
+            console.warn('[Aidad] Error building initial XPath in on_click:', err)
         }
     }
 
@@ -211,12 +215,12 @@ export class Selection_Overlay {
         }
         const rect = target.getBoundingClientRect()
         outline.style.display = 'block'
-    const left = rect.left + window.scrollX
-    const top = rect.top + window.scrollY
-    outline.style.left = `${left}px`
-    outline.style.top = `${top}px`
-    outline.style.width = `${rect.width}px`
-    outline.style.height = `${rect.height}px`
+        const left = rect.left + window.scrollX
+        const top = rect.top + window.scrollY
+        outline.style.left = `${left}px`
+        outline.style.top = `${top}px`
+        outline.style.width = `${rect.width}px`
+        outline.style.height = `${rect.height}px`
     }
 
     update_badge(target) {
@@ -227,7 +231,10 @@ export class Selection_Overlay {
         }
         const id = target.id ? '#' + target.id : ''
         let classes = ''
-        try { classes = (target.className && typeof target.className === 'string') ? '.' + target.className.trim().split(/\s+/).join('.') : '' } catch (_) {}
+        try {
+            classes = (target.className && typeof target.className === 'string') ? '.' + target.className.trim().split(/\s+/).join('.') : ''
+        } catch (_) {
+        }
         const label = (id || classes) ? `${id}${classes}` : target.tagName.toLowerCase()
         this.badge.textContent = label
         const rect = target.getBoundingClientRect()
@@ -240,11 +247,11 @@ export class Selection_Overlay {
 
     position_button_selected(target) {
         if (!this.hide_button || !target || !(target instanceof Element)) return
-    const rect = target.getBoundingClientRect()
-    const left = rect.left + window.scrollX + rect.width / 2 - this.hide_button.offsetWidth / 2
-    const top = rect.top + window.scrollY + rect.height / 2 - this.hide_button.offsetHeight / 2
-    this.hide_button.style.left = `${Math.max(0, left)}px`
-    this.hide_button.style.top = `${Math.max(0, top)}px`
+        const rect = target.getBoundingClientRect()
+        const left = rect.left + window.scrollX + rect.width / 2 - this.hide_button.offsetWidth / 2
+        const top = rect.top + window.scrollY + rect.height / 2 - this.hide_button.offsetHeight / 2
+        this.hide_button.style.left = `${Math.max(0, left)}px`
+        this.hide_button.style.top = `${Math.max(0, top)}px`
     }
 
     toggle_context_menu(e) {
@@ -306,21 +313,27 @@ export class Selection_Overlay {
         const candidates = this.get_xpath_candidates(el)
         const best = this.pick_best_xpath(candidates)
         if (!best) {
-            alert(this.config.i18n?.no_match || 'XPath не находит элементы на этой странице')
+            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'disable-admin-ad'))
             return
         }
         const expires_at = seconds === 0 ? 0 : Math.floor(Date.now() / 1000) + seconds
         try {
             const res = await this.api.create_rule({xpath: best.xpath, label: '', active: true, expires_at})
-            try { best.element?.remove() } catch (_) {}
+            try {
+                best.element?.remove()
+            } catch (_) {
+            }
             this.close_context_menu()
             // keep selection mode active across reload to see the effect
-            try { sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', '1') } catch (_) {}
+            try {
+                sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', '1')
+            } catch (_) {
+            }
             window.location.reload()
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || 'Ошибка сохранения правила')
+            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'disable-admin-ad'))
         }
     }
 
@@ -333,33 +346,35 @@ export class Selection_Overlay {
         box.setAttribute('data-aidad-ui', '1')
         const title = document.createElement('div')
         title.className = 'aidad-hint__title'
-        title.textContent = this.config.i18n?.hint_title || 'Режим выбора включен'
+        title.textContent = this.config.i18n?.hint_title || __('Selection mode is ON', 'disable-admin-ad')
         const text = document.createElement('div')
         text.className = 'aidad-hint__text'
-        text.textContent = this.config.i18n?.hint_text || 'Наведите курсор на блок, чтобы увидеть подсветку, затем кликните по нему и нажмите «Скрыть блок». Нажмите Esc, чтобы выйти. Если скрыли важное — нажмите «Сбросить все» ниже.'
+        text.textContent = this.config.i18n?.hint_text || __('Hover a block to preview, then click it and press “Hide block”. Press Esc to exit. If you hid something important — press “Reset all” below.', 'disable-admin-ad')
         const actions = document.createElement('div')
         actions.className = 'aidad-hint__actions'
         const exitBtn = document.createElement('button')
         exitBtn.type = 'button'
         exitBtn.className = 'aidad-hint__btn'
-        exitBtn.textContent = 'Выйти из режима'
-exitBtn.addEventListener('click', (e) => {
-            e.preventDefault(); e.stopPropagation();
+        exitBtn.textContent = __('Exit mode', 'disable-admin-ad')
+        exitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             this.toggle(false)
         }, true)
         const resetBtn = document.createElement('button')
         resetBtn.type = 'button'
         resetBtn.className = 'aidad-hint__btn'
-        resetBtn.textContent = 'Сбросить все'
-resetBtn.addEventListener('click', async (e) => {
-            e.preventDefault(); e.stopPropagation();
-            if (!window.confirm('Сбросить все правила?')) return
+        resetBtn.textContent = __('Reset all', 'disable-admin-ad')
+        resetBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!window.confirm(__('Reset all rules?', 'disable-admin-ad'))) return
             try {
-                await this.api.request('/rules/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                await this.api.request('/rules/reset', {method: 'POST', headers: {'Content-Type': 'application/json'}})
                 window.location.reload()
             } catch (err) {
                 console.error(err)
-                alert('Не удалось сбросить правила')
+                alert(__('Failed to reset rules', 'disable-admin-ad'))
             }
         }, true)
         actions.appendChild(exitBtn)
@@ -370,15 +385,15 @@ resetBtn.addEventListener('click', async (e) => {
         document.body.appendChild(box)
         this.hint_box = box
         // Draggable by title
-        let drag = { active: false, dx: 0, dy: 0 }
-title.addEventListener('mousedown', (e) => {
+        let drag = {active: false, dx: 0, dy: 0}
+        title.addEventListener('mousedown', (e) => {
             drag.active = true
             const r = box.getBoundingClientRect()
             drag.dx = e.clientX - r.left
             drag.dy = e.clientY - r.top
             e.preventDefault()
         })
-const move = (e) => {
+        const move = (e) => {
             if (!drag.active) return
             const x = e.clientX - drag.dx + window.scrollX
             const y = e.clientY - drag.dy + window.scrollY
@@ -387,22 +402,24 @@ const move = (e) => {
             box.style.bottom = 'auto'
             box.style.right = 'auto'
         }
-const up = () => { drag.active = false }
+        const up = () => {
+            drag.active = false
+        }
         document.addEventListener('mousemove', move)
         document.addEventListener('mouseup', up)
     }
 
-    // --- Helpers for XPath кандидатов и debug ---
+    // --- Helpers for XPath candidates and debug ---
 
     get_xpath_candidates(el) {
         const candidates = []
-        // Вариант 1: сам элемент
+        // Option 1: the element itself
         try {
             const own = Xpath_Builder.build_from_element(el)
             if (own) candidates.push({label: 'element', xpath: own, element: el})
         } catch (_) {
         }
-        // Вариант 2..N: родительские элементы вплоть до body/html
+        // Option 2..N: parent elements up to body/html
         let node = el?.parentElement
         while (node && node instanceof Element && node !== document.documentElement && node !== document.body) {
             try {
@@ -412,7 +429,7 @@ const up = () => { drag.active = false }
             }
             node = node.parentElement
         }
-        // Вариант на уровне body (на случай крупных контейнеров)
+        // Option at body level (for large containers)
         if (document.body) {
             try {
                 const bodyXp = Xpath_Builder.build_from_element(document.body)
@@ -424,9 +441,9 @@ const up = () => { drag.active = false }
     }
 
     pick_best_xpath(candidates) {
-        // Тестируем, выбираем наиболее «узкий» XPath с ненулевым количеством совпадений
+        // Test and pick the most specific XPath with non-zero matches
         // eslint-disable-next-line no-console
-        console.groupCollapsed('[Aidad] Тест XPath кандидатов')
+        console.groupCollapsed('[Aidad] Testing XPath candidates')
         let best = null
         for (const c of candidates) {
             const t = Xpath_Tester.test(c.xpath)
@@ -446,14 +463,14 @@ const up = () => { drag.active = false }
     async prompt_and_save() {
         // Prompt user for duration: 0 (forever), 1h, 24h, 7d
         const choices = [
-            {label: 'Навсегда', seconds: 0},
-            {label: '1 час', seconds: 3600},
-            {label: '24 часа', seconds: 86400},
-            {label: '7 дней', seconds: 604800},
+            {label: __('Forever', 'disable-admin-ad'), seconds: 0},
+            {label: __('1 hour', 'disable-admin-ad'), seconds: 3600},
+            {label: __('24 hours', 'disable-admin-ad'), seconds: 86400},
+            {label: __('7 days', 'disable-admin-ad'), seconds: 604800},
         ]
         let sel = 0
         try {
-            const str = window.prompt('Срок скрытия: 0=Навсегда, 1=1ч, 24=24ч, 168=7д. Введите количество часов:', '0')
+            const str = window.prompt(__('Hide duration: 0=Forever, 1=1h, 24=24h, 168=7d. Enter number of hours:', 'disable-admin-ad'), '0')
             if (str === null) return
             const hours = parseInt(str, 10)
             if (!isNaN(hours) && hours > 0) {
@@ -461,14 +478,16 @@ const up = () => { drag.active = false }
             } else {
                 sel = 0
             }
-        } catch (_) { sel = 0 }
+        } catch (_) {
+            sel = 0
+        }
 
         const el = this.state.selected_target || this.state.hover_target
         if (!el) return
         const candidates = this.get_xpath_candidates(el)
         const best = this.pick_best_xpath(candidates)
         if (!best) {
-            alert(this.config.i18n?.no_match || 'XPath не находит элементы на этой странице')
+            alert(this.config.i18n?.no_match || __('XPath does not find elements on this page', 'disable-admin-ad'))
             return
         }
         const expires_at = sel === 0 ? 0 : Math.floor(Date.now() / 1000) + sel
@@ -478,36 +497,37 @@ const up = () => { drag.active = false }
             // Remove element immediately from the DOM for instant feedback
             try {
                 best.element?.remove()
-            } catch (_) {}
+            } catch (_) {
+            }
             this.toggle(false)
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || 'Ошибка сохранения правила')
+            alert(this.config.i18n?.save_failed || __('Error saving rule', 'disable-admin-ad'))
         }
     }
 
     async save_current_rule() {
         const el = this.state.selected_target || this.state.hover_target
         if (!el) return
-        // Собираем кандидаты и выбираем лучший
+        // Collect candidates and pick the best
         const candidates = this.get_xpath_candidates(el)
         const best = this.pick_best_xpath(candidates)
 
         if (!best) {
-            alert(this.config.i18n?.no_match || 'XPath не находит элементы на этой странице')
+            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'disable-admin-ad'))
             return
         }
 
-        // Финальная отладка
+        // Final debug output
         // eslint-disable-next-line no-console
-        console.group('[Aidad] Итоговый выбор XPath')
+        console.group('[Aidad] Final XPath selection')
         // eslint-disable-next-line no-console
-        console.log('Выбранный элемент:', best.element)
+        console.log('Selected element:', best.element)
         // eslint-disable-next-line no-console
-        console.log('Выбранный XPath:', best.xpath, 'Совпадений:', best.count)
+        console.log('Selected XPath:', best.xpath, 'Matches:', best.count)
         // eslint-disable-next-line no-console
-        console.log('Все кандидаты (для справки):', candidates.map(c => c.xpath))
+        console.log('All candidates (for reference):', candidates.map(c => c.xpath))
         // eslint-disable-next-line no-console
         console.groupEnd()
 
@@ -518,7 +538,7 @@ const up = () => { drag.active = false }
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || 'Ошибка сохранения правила')
+            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'disable-admin-ad'))
         }
     }
 }
