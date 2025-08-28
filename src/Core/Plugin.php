@@ -46,6 +46,7 @@ class Plugin
         add_action('admin_post_aidad_delete_rule', [$this->container->get('settings_page'), 'handle_delete_rule']);
         add_action('admin_post_aidad_update_rule', [$this->container->get('settings_page'), 'handle_update_rule']);
         add_action('admin_post_aidad_update_logging', [$this->container->get('settings_page'), 'handle_update_logging']);
+        add_action('admin_post_aidad_update_general', [$this->container->get('settings_page'), 'handle_update_general']);
         add_action('admin_post_aidad_toggle_rule_active', [$this->container->get('settings_page'), 'handle_toggle_rule_active']);
     }
 
@@ -82,8 +83,8 @@ class Plugin
             return new Nonce_Service('wp_rest');
         });
 
-        $this->container->set('capabilities_service', static function () {
-            return new Capabilities_Service();
+        $this->container->set('capabilities_service', function () {
+            return new Capabilities_Service($this->container->get('options_repository'));
         });
 
         $this->container->set('options_repository', static function () {

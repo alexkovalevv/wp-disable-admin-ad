@@ -27,7 +27,8 @@ class Service_Container {
      */
     public function get( string $id ) {
         if ( ! isset( $this->services[ $id ] ) ) {
-            throw new \RuntimeException( 'Service not found: ' . $id );
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- used for exception context only
+            throw new \RuntimeException( 'Service not found: ' . sanitize_key( (string) $id ) );
         }
         $entry = $this->services[ $id ];
         if ( is_callable( $entry ) ) {

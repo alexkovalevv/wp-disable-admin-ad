@@ -8,6 +8,8 @@
  * Requires at least: 6.0
  * Text Domain: disable-admin-ad
  * Domain Path: /languages
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // Exit if accessed directly.
@@ -58,15 +60,9 @@ function aidad_bootstrap_plugin(): void
 
 add_action('plugins_loaded', 'aidad_bootstrap_plugin');
 
-/**
- * Load textdomain for i18n.
- */
-function aidad_load_textdomain(): void
-{
-    load_plugin_textdomain('disable-admin-ad', false, dirname(plugin_basename(__FILE__)) . '/languages');
-}
-
-add_action('init', 'aidad_load_textdomain');
+// Since WP 4.6, WordPress auto-loads translations for plugins from wp.org.
+// If this plugin is distributed elsewhere, consider loading MO files manually.
+// We intentionally avoid load_plugin_textdomain() to satisfy Plugin Check recommendations.
 
 /**
  * Activation hook: initialize default options and run migrations.
