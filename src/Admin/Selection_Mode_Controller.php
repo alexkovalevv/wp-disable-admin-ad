@@ -104,7 +104,7 @@ class Selection_Mode_Controller {
      */
     public function handle_list_rules( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $opts = $this->options_repository->get_all();
         $rules = (array) ( $opts['rules'] ?? [] );
@@ -116,7 +116,7 @@ class Selection_Mode_Controller {
      */
     public function handle_create_rule( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $params = $this->sanitize_rule_params( $request->get_json_params() ?? [] );
         if ( is_wp_error( $params ) ) {
@@ -132,7 +132,7 @@ class Selection_Mode_Controller {
      */
     public function handle_update_rule( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $id = sanitize_key( $request['id'] );
         $params = $this->sanitize_rule_params( $request->get_json_params() ?? [] );
@@ -141,7 +141,7 @@ class Selection_Mode_Controller {
         }
         $rule = $this->options_repository->update_rule( $id, $params );
         if ( ! $rule ) {
-            return new WP_Error( 'not_found', __( 'Rule not found', 'disable-admin-ad' ), [ 'status' => 404 ] );
+            return new WP_Error( 'not_found', __( 'Rule not found', 'ads-destroyer' ), [ 'status' => 404 ] );
         }
         $this->logger->log( 'rule_updated', [ 'id' => $id ] );
         return new WP_REST_Response( [ 'rule' => $rule ] );
@@ -152,12 +152,12 @@ class Selection_Mode_Controller {
      */
     public function handle_delete_rule( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $id = sanitize_key( $request['id'] );
         $ok = $this->options_repository->delete_rule( $id );
         if ( ! $ok ) {
-            return new WP_Error( 'not_found', __( 'Rule not found', 'disable-admin-ad' ), [ 'status' => 404 ] );
+            return new WP_Error( 'not_found', __( 'Rule not found', 'ads-destroyer' ), [ 'status' => 404 ] );
         }
         $this->logger->log( 'rule_deleted', [ 'id' => $id ] );
         return new WP_REST_Response( [ 'deleted' => true ] );
@@ -168,7 +168,7 @@ class Selection_Mode_Controller {
      */
     public function handle_reset_rules( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $this->options_repository->clear_rules();
         $this->logger->log( 'rules_reset' );
@@ -180,13 +180,13 @@ class Selection_Mode_Controller {
      */
     public function handle_test_xpath( WP_REST_Request $request ): WP_REST_Response|WP_Error {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
-            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'disable-admin-ad' ), [ 'status' => 403 ] );
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
         $body = $request->get_json_params() ?? [];
         $xpath = isset( $body['xpath'] ) ? (string) $body['xpath'] : '';
         $xpath = $this->sanitize_xpath( $xpath );
         if ( $xpath === '' ) {
-            return new WP_Error( 'invalid_xpath', __( 'Invalid XPath', 'disable-admin-ad' ), [ 'status' => 400 ] );
+            return new WP_Error( 'invalid_xpath', __( 'Invalid XPath', 'ads-destroyer' ), [ 'status' => 400 ] );
         }
         // Client-side testing is preferred; here we just echo back sanitized.
         return new WP_REST_Response( [ 'xpath' => $xpath, 'ok' => true ] );
@@ -201,7 +201,7 @@ class Selection_Mode_Controller {
     private function sanitize_rule_params( array $data ) {
         $xpath = isset( $data['xpath'] ) ? $this->sanitize_xpath( (string) $data['xpath'] ) : '';
         if ( $xpath === '' ) {
-            return new WP_Error( 'invalid_xpath', __( 'Invalid XPath', 'disable-admin-ad' ), [ 'status' => 400 ] );
+            return new WP_Error( 'invalid_xpath', __( 'Invalid XPath', 'ads-destroyer' ), [ 'status' => 400 ] );
         }
         $label  = isset( $data['label'] ) ? sanitize_text_field( (string) $data['label'] ) : '';
         $active = isset( $data['active'] ) ? (bool) $data['active'] : true;

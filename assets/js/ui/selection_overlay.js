@@ -31,17 +31,17 @@ export class Selection_Overlay {
         this.hide_button = document.createElement('button')
         this.hide_button.type = 'button'
         this.hide_button.className = 'aidad-hide-button'
-        this.hide_button.textContent = this.config.i18n?.hide || __('Hide block', 'disable-admin-ad')
+        this.hide_button.textContent = this.config.i18n?.hide || __('Hide block', 'ads-destroyer')
         this.hide_button.addEventListener('click', (e) => this.toggle_context_menu(e))
 
         this.context_menu = document.createElement('div')
         this.context_menu.className = 'aidad-context-menu'
         this.context_menu.style.display = 'none'
         this.menu_items = [
-            {label: __('Hide forever', 'disable-admin-ad'), seconds: 0},
-            {label: __('For a day', 'disable-admin-ad'), seconds: 86400},
-            {label: __('For a week', 'disable-admin-ad'), seconds: 604800},
-            {label: __('For a month', 'disable-admin-ad'), seconds: 2592000},
+            {label: __('Hide forever', 'ads-destroyer'), seconds: 0},
+            {label: __('For a day', 'ads-destroyer'), seconds: 86400},
+            {label: __('For a week', 'ads-destroyer'), seconds: 604800},
+            {label: __('For a month', 'ads-destroyer'), seconds: 2592000},
         ]
         this.context_menu.innerHTML = this.menu_items.map((it, idx) => `<button type="button" class="aidad-context-menu__item" data-seconds="${it.seconds}">${it.label}</button>`).join('')
 
@@ -313,7 +313,7 @@ export class Selection_Overlay {
         const candidates = this.get_xpath_candidates(el)
         const best = this.pick_best_xpath(candidates)
         if (!best) {
-            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'disable-admin-ad'))
+            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'ads-destroyer'))
             return
         }
         const expires_at = seconds === 0 ? 0 : Math.floor(Date.now() / 1000) + seconds
@@ -333,7 +333,7 @@ export class Selection_Overlay {
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'disable-admin-ad'))
+            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'))
         }
     }
 
@@ -346,16 +346,16 @@ export class Selection_Overlay {
         box.setAttribute('data-aidad-ui', '1')
         const title = document.createElement('div')
         title.className = 'aidad-hint__title'
-        title.textContent = this.config.i18n?.hint_title || __('Selection mode is ON', 'disable-admin-ad')
+        title.textContent = this.config.i18n?.hint_title || __('Selection mode is ON', 'ads-destroyer')
         const text = document.createElement('div')
         text.className = 'aidad-hint__text'
-        text.textContent = this.config.i18n?.hint_text || __('Hover a block to preview, then click it and press “Hide block”. Press Esc to exit. If you hid something important — press “Reset all” below.', 'disable-admin-ad')
+        text.textContent = this.config.i18n?.hint_text || __('Hover a block to preview, then click it and press “Hide block”. Press Esc to exit. If you hid something important — press “Reset all” below.', 'ads-destroyer')
         const actions = document.createElement('div')
         actions.className = 'aidad-hint__actions'
         const exitBtn = document.createElement('button')
         exitBtn.type = 'button'
         exitBtn.className = 'aidad-hint__btn'
-        exitBtn.textContent = __('Exit mode', 'disable-admin-ad')
+        exitBtn.textContent = __('Exit mode', 'ads-destroyer')
         exitBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -364,17 +364,17 @@ export class Selection_Overlay {
         const resetBtn = document.createElement('button')
         resetBtn.type = 'button'
         resetBtn.className = 'aidad-hint__btn'
-        resetBtn.textContent = __('Reset all', 'disable-admin-ad')
+        resetBtn.textContent = __('Reset all', 'ads-destroyer')
         resetBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (!window.confirm(__('Reset all rules?', 'disable-admin-ad'))) return
+            if (!window.confirm(__('Reset all rules?', 'ads-destroyer'))) return
             try {
                 await this.api.request('/rules/reset', {method: 'POST', headers: {'Content-Type': 'application/json'}})
                 window.location.reload()
             } catch (err) {
                 console.error(err)
-                alert(__('Failed to reset rules', 'disable-admin-ad'))
+                alert(__('Failed to reset rules', 'ads-destroyer'))
             }
         }, true)
         actions.appendChild(exitBtn)
@@ -463,14 +463,14 @@ export class Selection_Overlay {
     async prompt_and_save() {
         // Prompt user for duration: 0 (forever), 1h, 24h, 7d
         const choices = [
-            {label: __('Forever', 'disable-admin-ad'), seconds: 0},
-            {label: __('1 hour', 'disable-admin-ad'), seconds: 3600},
-            {label: __('24 hours', 'disable-admin-ad'), seconds: 86400},
-            {label: __('7 days', 'disable-admin-ad'), seconds: 604800},
+            {label: __('Forever', 'ads-destroyer'), seconds: 0},
+            {label: __('1 hour', 'ads-destroyer'), seconds: 3600},
+            {label: __('24 hours', 'ads-destroyer'), seconds: 86400},
+            {label: __('7 days', 'ads-destroyer'), seconds: 604800},
         ]
         let sel = 0
         try {
-            const str = window.prompt(__('Hide duration: 0=Forever, 1=1h, 24=24h, 168=7d. Enter number of hours:', 'disable-admin-ad'), '0')
+            const str = window.prompt(__('Hide duration: 0=Forever, 1=1h, 24=24h, 168=7d. Enter number of hours:', 'ads-destroyer'), '0')
             if (str === null) return
             const hours = parseInt(str, 10)
             if (!isNaN(hours) && hours > 0) {
@@ -487,7 +487,7 @@ export class Selection_Overlay {
         const candidates = this.get_xpath_candidates(el)
         const best = this.pick_best_xpath(candidates)
         if (!best) {
-            alert(this.config.i18n?.no_match || __('XPath does not find elements on this page', 'disable-admin-ad'))
+            alert(this.config.i18n?.no_match || __('XPath does not find elements on this page', 'ads-destroyer'))
             return
         }
         const expires_at = sel === 0 ? 0 : Math.floor(Date.now() / 1000) + sel
@@ -503,7 +503,7 @@ export class Selection_Overlay {
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Error saving rule', 'disable-admin-ad'))
+            alert(this.config.i18n?.save_failed || __('Error saving rule', 'ads-destroyer'))
         }
     }
 
@@ -515,7 +515,7 @@ export class Selection_Overlay {
         const best = this.pick_best_xpath(candidates)
 
         if (!best) {
-            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'disable-admin-ad'))
+            alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'ads-destroyer'))
             return
         }
 
@@ -538,7 +538,7 @@ export class Selection_Overlay {
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'disable-admin-ad'))
+            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'))
         }
     }
 }

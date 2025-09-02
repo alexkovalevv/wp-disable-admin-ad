@@ -1,5 +1,5 @@
 {
-    "name": "alexkovalevv/disable-admin-ad",
+    "name": "alexkovalevv/ads-destroyer",
     "description": "WordPress plugin to hide admin advertising blocks using XPath rules",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

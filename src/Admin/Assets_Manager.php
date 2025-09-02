@@ -45,7 +45,7 @@ class Assets_Manager {
         if ( file_exists( $script_path ) ) {
             wp_register_script( $handle_js, $script_url, [], $ver, true );
             wp_enqueue_script( $handle_js );
-            wp_set_script_translations( $handle_js, 'disable-admin-ad', AIDAD_PLUGIN_DIR . '/languages' );
+            wp_set_script_translations( $handle_js, 'ads-destroyer', AIDAD_PLUGIN_DIR . '/languages' );
         }
         if ( file_exists( $style_path ) ) {
             wp_register_style( $handle_css, $style_url, [], $ver );

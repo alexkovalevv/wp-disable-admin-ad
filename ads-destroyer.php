@@ -1,12 +1,13 @@
 <?php
 /**
- * Plugin Name: Disable Admin Ad & ad blocker
+ * Plugin Name: AdsDestroyer - disable admin ad & adblocker
  * Description: Hides HTML ad blocks in the WordPress admin panel using saved XPath rules. Enables element selection mode, output buffering, and settings.
- * Author: Alex Kovalevv
+ * Author: wpaifactory
+ * Author URI: https://wp-aifactory.com
  * Version: 1.0.18
  * Requires PHP: 8.0
  * Requires at least: 6.0
- * Text Domain: disable-admin-ad
+ * Text Domain: ads-destroyer
  * Domain Path: /languages
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

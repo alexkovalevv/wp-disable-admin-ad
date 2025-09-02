@@ -1,9 +1,9 @@
 # Copyright (C) 2025 Alex Kovalevv
-# This file is distributed under the same license as the Disable Admin Ad & ad blocker plugin.
+# This file is distributed under the same license as the AdsDestroyer plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Disable Admin Ad & ad blocker 1.0.17\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/disable-admin-ad\n"
+"Project-Id-Version: AdsDestroyer 1.0.17\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ads-destroyer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,20 +12,20 @@ msgstr ""
 "POT-Creation-Date: 2025-08-20T06:30:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
-"X-Domain: disable-admin-ad\n"
+"X-Domain: ads-destroyer\n"
 
 #. Plugin Name of the plugin
-#: disable-admin-ad.php
-msgid "Disable Admin Ad & ad blocker"
+#: ads-destroyer.php
+msgid "AdsDestroyer"
 msgstr ""
 
 #. Description of the plugin
-#: disable-admin-ad.php
+#: ads-destroyer.php
 msgid "Hides HTML ad blocks in the WordPress admin panel using saved XPath rules. Enables element selection mode, output buffering, and settings."
 msgstr ""
 
 #. Author of the plugin
-#: disable-admin-ad.php
+#: ads-destroyer.php
 msgid "Alex Kovalevv"
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Settings/Settings_Page.php:29
 #: src/Settings/Settings_Page.php:30
 #: src/Settings/Settings_Page.php:47
-msgid "Disable Admin Ad"
+msgid "AdsDestroyer"
 msgstr ""
 
 #: src/Settings/Settings_Page.php:42

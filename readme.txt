@@ -1,4 +1,4 @@
-=== Disable Admin Ad & ad blocker ===
+=== AdsDestroyer - disable admin ad & adblocker ===
 Contributors: wpaifactory, alexkovalevv
 Author: wpaifactory
 Author URI: https://wp-aifactory.com
@@ -29,9 +29,9 @@ Key features:
 
 == Installation ==
 
-1. Upload the plugin to wp-content/plugins/disable-admin-ad or clone/install it there.
-2. Navigate to Plugins → Activate "Disable Admin Ad & ad blocker".
-3. From Settings → Disable Admin Ad & ad blocker, review defaults and permissions.
+1. Upload the plugin to wp-content/plugins/ads-destroyer or clone/install it there.
+2. Navigate to Plugins → Activate "AdsDestroyer - disable admin ad & adblocker".
+3. From Settings → AdsDestroyer - disable admin ad & adblocker, review defaults and permissions.
 
 == Usage ==
 
@@ -39,7 +39,7 @@ Key features:
 - Follow the hint: hover to preview, click to select, then click "Скрыть блок" to save a rule.
 - You will be prompted for a duration (hours). Enter 0 for "forever".
 - The block disappears immediately. On subsequent loads, the block remains hidden/removed.
-- Manage rules in Settings → Disable Admin Ad & ad blocker: edit label/XPath/expiry, delete rules, reset all.
+- Manage rules in Settings → AdsDestroyer - disable admin ad & adblocker: edit label/XPath/expiry, delete rules, reset all.
 
 == Multisite ==
 
@@ -55,7 +55,7 @@ Key features:
 - The plugin relaxes dynamic classes server-side and filters them client-side. Try re-selecting the parent container or a node with a stable id/label. Data attributes (data-test/testid/qa) are preferred.
 
 = How to reset all rules? =
-- Settings → Disable Admin Ad & ad blocker → "Reset all rules".
+- Settings → AdsDestroyer - disable admin ad & adblocker → "Reset all rules".
 
 == Changelog ==
 

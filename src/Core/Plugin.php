@@ -75,7 +75,7 @@ class Plugin
     private function register_services(): void
     {
         $this->container->set('logger', static function () {
-            return new Logger('disable-admin-ad');
+            return new Logger('ads-destroyer');
         });
 
         $this->container->set('nonce_service', static function () {

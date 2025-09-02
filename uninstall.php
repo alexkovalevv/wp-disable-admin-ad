@@ -14,5 +14,5 @@ if ( ! $delete ) {
 delete_option( 'wp_admin_ad_hider_options' );
 delete_site_option( 'wp_admin_ad_hider_network_options' );
 
-delete_option( 'disable-admin-ad_logs' );
+delete_option( 'ads-destroyer_logs' );
 

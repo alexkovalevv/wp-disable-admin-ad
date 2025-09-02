@@ -11,11 +11,11 @@ import { __ } from '@wordpress/i18n'
   const api = new Api_Client(cfg.rest_url || '', cfg.nonce || '')
   const state = new Selection_State()
   const overlay = new Selection_Overlay({ ui: cfg.ui, i18n: {
-    hide: __('Hide block', 'disable-admin-ad'),
-    no_match: __('XPath does not match elements on this page', 'disable-admin-ad'),
-    save_failed: __('Failed to save the rule', 'disable-admin-ad'),
-    hint_title: __('Selection mode is ON', 'disable-admin-ad'),
-    hint_text: __('Hover a block, click it, then choose hide duration. Press Esc or “Exit mode” to leave. If you hid something important — use “Reset all”.', 'disable-admin-ad'),
+    hide: __('Hide block', 'ads-destroyer'),
+    no_match: __('XPath does not match elements on this page', 'ads-destroyer'),
+    save_failed: __('Failed to save the rule', 'ads-destroyer'),
+    hint_title: __('Selection mode is ON', 'ads-destroyer'),
+    hint_text: __('Hover a block, click it, then choose hide duration. Press Esc or “Exit mode” to leave. If you hid something important — use “Reset all”.', 'ads-destroyer'),
   } }, api, state)
 
   overlay.init()
@@ -37,7 +37,7 @@ import { __ } from '@wordpress/i18n'
       icon.classList.toggle('aidad-active', state.active)
       return false
     })
-    icon.title = state.active ? __('Selection: ON', 'disable-admin-ad') : __('Selection: OFF', 'disable-admin-ad')
+    icon.title = state.active ? __('Selection: ON', 'ads-destroyer') : __('Selection: OFF', 'ads-destroyer')
   }
 
   if (document.readyState === 'loading') {
