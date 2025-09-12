@@ -1,17 +1,18 @@
 <?php
 
-namespace AIDAD\Core;
+namespace ADSD\Core;
 
-use AIDAD\Admin\Admin_Bar_Controller;
-use AIDAD\Admin\Assets_Manager;
-use AIDAD\Admin\Output_Buffer_Service;
-use AIDAD\Admin\Selection_Mode_Controller;
-use AIDAD\Logging\Logger;
-use AIDAD\Security\Capabilities_Service;
-use AIDAD\Security\Nonce_Service;
-use AIDAD\Settings\Options_Repository;
-use AIDAD\Settings\Settings_Page;
-use AIDAD\Domain\XPath_Engine;
+use ADSD\Admin\Admin_Bar_Controller;
+use ADSD\Admin\Assets_Manager;
+use ADSD\Admin\Notice_ID_Manager;
+use ADSD\Admin\Output_Buffer_Service;
+use ADSD\Admin\Selection_Mode_Controller;
+use ADSD\Logging\Logger;
+use ADSD\Security\Capabilities_Service;
+use ADSD\Security\Nonce_Service;
+use ADSD\Settings\Options_Repository;
+use ADSD\Settings\Settings_Page;
+use ADSD\Domain\XPath_Engine;
 
 /**
  * Class Plugin
@@ -34,6 +35,7 @@ class Plugin
      */
     public function run(): void
     {
+       
         add_action('admin_init', [$this, 'bootstrap_admin']);
         add_action('admin_bar_menu', [$this->container->get('admin_bar_controller'), 'render_admin_bar_icon'], 100);
         add_action('admin_enqueue_scripts', [$this->container->get('assets_manager'), 'enqueue_assets']);
@@ -41,13 +43,19 @@ class Plugin
         add_action('admin_footer', [$this->container->get('output_buffer_service'), 'end_buffer'], PHP_INT_MAX);
         add_action('rest_api_init', [$this->container->get('selection_mode_controller'), 'register_routes']);
         add_action('admin_menu', [$this->container->get('settings_page'), 'register_menu']);
+        add_action('admin_enqueue_scripts', [$this->container->get('settings_page'), 'enqueue_admin_assets']);
+        
+        // Initialize notice ID manager for WordPress hooks (after admin is fully loaded)
+        add_action('admin_init', function() {
+            Notice_ID_Manager::get_instance()->init();
+        }, 1);
         // Admin-post handlers for settings actions
-        add_action('admin_post_aidad_reset_rules', [$this->container->get('settings_page'), 'handle_reset_rules']);
-        add_action('admin_post_aidad_delete_rule', [$this->container->get('settings_page'), 'handle_delete_rule']);
-        add_action('admin_post_aidad_update_rule', [$this->container->get('settings_page'), 'handle_update_rule']);
-        add_action('admin_post_aidad_update_logging', [$this->container->get('settings_page'), 'handle_update_logging']);
-        add_action('admin_post_aidad_update_general', [$this->container->get('settings_page'), 'handle_update_general']);
-        add_action('admin_post_aidad_toggle_rule_active', [$this->container->get('settings_page'), 'handle_toggle_rule_active']);
+        add_action('admin_post_adsd_reset_rules', [$this->container->get('settings_page'), 'handle_reset_rules']);
+        add_action('admin_post_adsd_delete_rule', [$this->container->get('settings_page'), 'handle_delete_rule']);
+        add_action('admin_post_adsd_update_rule', [$this->container->get('settings_page'), 'handle_update_rule']);
+        add_action('admin_post_adsd_update_logging', [$this->container->get('settings_page'), 'handle_update_logging']);
+        add_action('admin_post_adsd_update_general', [$this->container->get('settings_page'), 'handle_update_general']);
+        add_action('admin_post_adsd_toggle_rule_active', [$this->container->get('settings_page'), 'handle_toggle_rule_active']);
     }
 
     /**

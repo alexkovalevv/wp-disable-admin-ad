@@ -1,6 +1,6 @@
 <?php
 
-namespace AIDAD\Settings;
+namespace ADSD\Settings;
 
 use WP_Error;
 
@@ -9,8 +9,8 @@ use WP_Error;
  */
 class Options_Repository
 {
-    private string $option_name = 'wp_admin_disable_ad_options';
-    private string $network_option_name = 'wp_admin_network_disable_ad_options';
+    private string $option_name = 'adsd_disable_ad_options';
+    private string $network_option_name = 'adsd_network_disable_ad_options';
     private string $version = '1.0.0';
 
     /**
@@ -212,7 +212,7 @@ class Options_Repository
      */
     private function is_network_wide(): bool
     {
-        return function_exists('is_multisite') && is_multisite() && (bool)get_site_option('aidad_network_wide', false);
+        return function_exists('is_multisite') && is_multisite() && (bool)get_site_option('adsd_network_wide', false);
     }
 
     /**

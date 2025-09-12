@@ -1,9 +1,9 @@
 <?php
 
-namespace AIDAD\Admin;
+namespace ADSD\Admin;
 
-use AIDAD\Security\Nonce_Service;
-use AIDAD\Settings\Options_Repository;
+use ADSD\Security\Nonce_Service;
+use ADSD\Settings\Options_Repository;
 
 /**
  * Registers and enqueues admin assets, passes settings via wp_localize_script and wp_set_script_translations.
@@ -33,19 +33,19 @@ class Assets_Manager {
             return;
         }
 
-        $handle_js  = 'aidad-admin-js';
-        $handle_css = 'aidad-admin-css';
+        $handle_js  = 'adsd-admin-js';
+        $handle_css = 'adsd-admin-css';
 
-        $script_path = AIDAD_PLUGIN_DIR . '/build/js/admin.js';
-        $script_url  = AIDAD_PLUGIN_URL . 'build/js/admin.js';
-        $style_path  = AIDAD_PLUGIN_DIR . '/build/css/style.css';
-        $style_url   = AIDAD_PLUGIN_URL . 'build/css/style.css';
+        $script_path = ADSD_PLUGIN_DIR . '/build/js/app.js';
+        $script_url  = ADSD_PLUGIN_URL . 'build/js/app.js';
+        $style_path  = ADSD_PLUGIN_DIR . '/build/css/style.css';
+        $style_url   = ADSD_PLUGIN_URL . 'build/css/style.css';
 
-        $ver = defined('AIDAD_PLUGIN_VERSION') ? AIDAD_PLUGIN_VERSION : null;
+        $ver = defined('ADSD_PLUGIN_VERSION') ? ADSD_PLUGIN_VERSION : null;
         if ( file_exists( $script_path ) ) {
             wp_register_script( $handle_js, $script_url, [], $ver, true );
             wp_enqueue_script( $handle_js );
-            wp_set_script_translations( $handle_js, 'ads-destroyer', AIDAD_PLUGIN_DIR . '/languages' );
+            wp_set_script_translations( $handle_js, 'ads-destroyer', ADSD_PLUGIN_DIR . '/languages' );
         }
         if ( file_exists( $style_path ) ) {
             wp_register_style( $handle_css, $style_url, [], $ver );
@@ -56,7 +56,7 @@ class Assets_Manager {
         $ui = (array) ( $opts['ui'] ?? [] );
 
         $config = [
-            'rest_url'         => esc_url_raw( rest_url( 'aidad/v1' ) ),
+            'rest_url'         => esc_url_raw( rest_url( 'adsd/v1' ) ),
             'nonce'            => $this->nonce_service->create(),
             'enabled'          => $enabled,
             'roles_allowed'    => $roles_allowed,
@@ -73,10 +73,10 @@ class Assets_Manager {
             'safe_preview'     => (bool) ( $opts['safe_preview'] ?? false ),
         ];
 
-        wp_localize_script( $handle_js, 'AIDAD_CONFIG', $config );
+        wp_localize_script( $handle_js, 'ADSD_CONFIG', $config );
 
         // Ensure hidden placeholders are not visible if delete mode uses placeholders
-        $inline_css = '[data-aidad-removed]{display:none !important;}';
+        $inline_css = '[data-adsd-removed]{display:none !important;}';
         wp_add_inline_style( $handle_css, $inline_css );
     }
 }

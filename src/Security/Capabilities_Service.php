@@ -1,8 +1,8 @@
 <?php
 
-namespace AIDAD\Security;
+namespace ADSD\Security;
 
-use AIDAD\Settings\Options_Repository;
+use ADSD\Settings\Options_Repository;
 
 /**
  * Capabilities service determining access to selection mode and settings.

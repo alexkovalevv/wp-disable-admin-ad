@@ -6,7 +6,7 @@ Tags: disable, ads, notices, ad, block
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.18
+Stable tag: 1.0.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Key features:
 - Settings page: manage rules (CRUD), reset all, network-aware options (per-site by default), logging.
 - Multisite support: per-site options with optional network-wide.
 - Security: REST nonce validation, capability checks, sanitization, no dangerous eval.
-- Performance: buffering only when needed and only in admin.
+- Performance: output buffering only when needed and only in admin area (never on frontend).
 - Localization-ready.
 
 == Installation ==
@@ -57,7 +57,61 @@ Key features:
 = How to reset all rules? =
 - Settings → AdsDestroyer - disable admin ad & adblocker → "Reset all rules".
 
+== Output Buffering ==
+
+This plugin uses PHP output buffering (ob_start) to process HTML content in the WordPress admin panel. The buffering is **only active in the admin area** and **never affects the frontend** of your website.
+
+**Important for hosting providers:**
+- The plugin does NOT use output buffering on frontend pages
+- Admin panel pages are rarely cached by hosting providers due to their personalized nature
+- If you have admin panel caching enabled on your hosting, it may cause conflicts with the plugin's functionality
+- If you have problems with Wordpress admin panel caching. We recommend disabling admin panel caching when using this plugin
+
+**Technical details:**
+- The buffering is used to apply XPath rules to hide unwanted elements in the admin interface
+- No impact on frontend performance or caching
+
+== Development & Build Instructions ==
+
+This plugin uses modern build tools for JavaScript and CSS compilation. To build the plugin from source:
+
+**Prerequisites:**
+- Node.js (version 16 or higher)
+- npm (comes with Node.js)
+
+**Build Commands:**
+- `npm install` - Install dependencies
+- `npm run build` - Build production assets and create distribution package
+- `npm run build:dev` - Build development assets (with source maps)
+- `npm run dev` - Build development assets (alias for build:dev)
+
+**Build Process:**
+1. JavaScript files are compiled using Vite from `assets/js/` directory
+2. SCSS files are compiled to CSS from `assets/scss/` directory  
+3. Compiled assets are output to `build/` directory
+4. Final distribution package is created as `build/compiled/ads-destroyer-[version].zip`
+
+**Source Files:**
+- JavaScript: `assets/js/main.js`, `assets/js/admin-settings.js`, and related modules
+- SCSS: `assets/scss/index.scss`, `assets/scss/admin-settings.scss`, and component files
+- Build configuration: `vite.config.js`, `package.json`
+
+**Output Structure:**
+- `build/js/` - Compiled JavaScript files
+- `build/css/` - Compiled CSS files
+- `build/compiled/` - Distribution packages
+
 == Changelog ==
+
+= 1.0.20 =
+- Added comprehensive build instructions to readme.txt
+- Updated development documentation with Node.js build process
+- Improved plugin documentation for developers
+
+= 1.0.19 =
+- Updated all plugin prefixes from AIDAD/aidad to ADSD/adsd for WordPress.org compliance
+- Added output buffering documentation for hosting providers
+- Improved admin-only buffering with clear frontend exclusion
 
 = 1.0.18 =
 - Visual overlay updated: blur/hatch on hover and selection, centered action button, instruction hint.

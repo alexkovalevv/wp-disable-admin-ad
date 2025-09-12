@@ -5,6 +5,9 @@
   "description": "Build/packaging scripts for Disable Admin Ad plugin",
   "license": "GPL-2.0-or-later",
   "scripts": {
-    "build": "node scripts/build-package.js"
+    "build": "npm run build:assets && node scripts/build-package.js",
+    "build:assets": "vite build --mode production",
+    "build:dev": "vite build --mode development",
+    "dev": "vite build --mode development"
   }
 }

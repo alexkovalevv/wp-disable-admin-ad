@@ -2,14 +2,14 @@
 @use '../mixins' as *;
 
 // Overlay element sized to a specific target (absolute positioning)
-.aidad-overlay {
+.adsd-overlay {
   position: absolute;
   pointer-events: none;
   z-index: $overlay-z;
 }
 
 // Hover mask: green border + light blur + light hatched overlay
-.aidad-hover-mask {
+.adsd-hover-mask {
   @include border-outline($hover-color);
   background: repeating-linear-gradient(
     45deg,
@@ -22,7 +22,7 @@
 }
 
 // Selected mask: red border + blur only under the element + hatched overlay
-.aidad-selected-mask {
+.adsd-selected-mask {
   @include border-outline($selected-color);
   background: repeating-linear-gradient(
     45deg,
@@ -34,7 +34,7 @@
   backdrop-filter: blur($blur-amount);
 }
 
-.aidad-hide-button {
+.adsd-hide-button {
   position: absolute;
   pointer-events: auto;
   z-index: $overlay-z + 1;
@@ -51,7 +51,29 @@
   }
 }
 
-.aidad-context-menu {
+.adsd-cancel-button {
+  position: absolute;
+  pointer-events: auto;
+  z-index: $overlay-z + 1;
+  padding: 6px 10px;
+  background: #666;
+  color: #fff;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 12px;
+  transition: background .15s ease, opacity .15s ease;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+  &:hover {
+    background: #888;
+  }
+  &:active {
+    background: #999;
+  }
+}
+
+.adsd-context-menu {
   position: absolute;
   z-index: $overlay-z + 2;
   min-width: 180px;
@@ -63,7 +85,7 @@
   padding: 6px;
 }
 // arrow from the button to the menu
-.aidad-context-menu::before {
+.adsd-context-menu::before {
   content: '';
   position: absolute;
   left: -8px;
@@ -73,7 +95,7 @@
   border-bottom: 8px solid transparent;
   border-right: 8px solid #1c1c1c;
 }
-.aidad-context-menu__item {
+.adsd-context-menu__item {
   display: block;
   width: 100%;
   text-align: left;
@@ -85,12 +107,12 @@
   border-radius: 4px;
   cursor: pointer;
 }
-.aidad-context-menu__item:hover {
+.adsd-context-menu__item:hover {
   background: rgba(255,255,255,0.08);
 }
 
 // Hover badge for element info (id/classes)
-.aidad-badge {
+.adsd-badge {
   position: absolute;
   z-index: $overlay-z + 1;
   pointer-events: none;
@@ -103,7 +125,7 @@
 }
 
 // Hint box with instructions when selection mode is enabled
-.aidad-hint {
+.adsd-hint {
   position: fixed;
   bottom: 16px;
   right: 16px;
@@ -118,9 +140,9 @@
   box-shadow: 0 6px 20px rgba(0,0,0,0.25);
   user-select: none;
 }
-.aidad-hint__title { font-weight: 600; margin-bottom: 6px; cursor: move; }
-.aidad-hint__text { opacity: 0.85; margin-bottom: 8px; }
-.aidad-hint__actions { display: flex; gap: 8px; }
-.aidad-hint__btn { background: #2a2a2a; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
-.aidad-hint__btn:hover { background: #333; }
+.adsd-hint__title { font-weight: 600; margin-bottom: 6px; cursor: move; }
+.adsd-hint__text { opacity: 0.85; margin-bottom: 8px; }
+.adsd-hint__actions { display: flex; gap: 8px; }
+.adsd-hint__btn { background: #2a2a2a; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
+.adsd-hint__btn:hover { background: #333; }
 

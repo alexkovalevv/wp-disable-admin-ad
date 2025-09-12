@@ -1,6 +1,6 @@
 <?php
 
-namespace AIDAD\Security;
+namespace ADSD\Security;
 
 use WP_REST_Request;
 

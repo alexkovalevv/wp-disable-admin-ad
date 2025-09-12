@@ -1,8 +1,8 @@
 <?php
 
-namespace AIDAD\Admin;
+namespace ADSD\Admin;
 
-use AIDAD\Settings\Options_Repository;
+use ADSD\Settings\Options_Repository;
 
 /**
  * Renders admin bar icon and handles client-side toggle (state stored in user meta via JS).
@@ -51,8 +51,8 @@ class Admin_Bar_Controller
 
         $wp_admin_bar->add_node(
             [
-                'id' => 'aidad-toggle',
-                'title' => '<span class="ab-icon" id="aidad-icon" aria-hidden="true">' . $icon_svg . '</span><span class="ab-label">' . esc_html__('Disable ad', 'ads-destroyer') . '</span>',
+                'id' => 'adsd-toggle',
+                'title' => '<span class="ab-icon" id="adsd-icon" aria-hidden="true">' . $icon_svg . '</span><span class="ab-label">' . esc_html__('Disable ad', 'ads-destroyer') . '</span>',
                 'href' => '#',
                 'meta' => [
                     'title' => esc_attr__('Toggle selection mode', 'ads-destroyer'),

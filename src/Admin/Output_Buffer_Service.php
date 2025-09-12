@@ -1,10 +1,10 @@
 <?php
 
-namespace AIDAD\Admin;
+namespace ADSD\Admin;
 
-use AIDAD\Domain\XPath_Engine;
-use AIDAD\Logging\Logger;
-use AIDAD\Settings\Options_Repository;
+use ADSD\Domain\XPath_Engine;
+use ADSD\Logging\Logger;
+use ADSD\Settings\Options_Repository;
 
 /**
  * Starts output buffering on admin pages and manipulates HTML before sending to browser.
@@ -90,5 +90,6 @@ class Output_Buffer_Service {
             return $html; // Fail-safe: return original HTML
         }
     }
+
 }
 

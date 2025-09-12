@@ -1,9 +1,9 @@
 <?php
 
-namespace AIDAD\Settings;
+namespace ADSD\Settings;
 
-use AIDAD\Logging\Logger;
-use AIDAD\Security\Capabilities_Service;
+use ADSD\Logging\Logger;
+use ADSD\Security\Capabilities_Service;
 
 /**
  * Renders plugin settings page and registers settings/sections/fields.
@@ -38,6 +38,35 @@ class Settings_Page
     }
 
     /**
+     * Enqueue admin scripts and styles for settings page.
+     */
+    public function enqueue_admin_assets(): void
+    {
+        // Only load on our settings page
+        $screen = get_current_screen();
+        if (!$screen || $screen->id !== 'settings_page_' . $this->menu_slug) {
+            return;
+        }
+
+        // Enqueue admin settings CSS
+        wp_enqueue_style(
+            'ads-destroyer-admin-settings',
+            plugin_dir_url(dirname(__DIR__)) . 'build/css/admin-settings-style.css',
+            [],
+            ADSD_PLUGIN_VERSION
+        );
+
+        // Enqueue admin settings JavaScript
+        wp_enqueue_script(
+            'ads-destroyer-admin-settings',
+            plugin_dir_url(dirname(__DIR__)) . 'build/js/admin-settings.js',
+            [],
+            ADSD_PLUGIN_VERSION,
+            true
+        );
+    }
+
+    /**
      * Render settings page.
      */
     public function render_page(): void
@@ -50,8 +79,9 @@ class Settings_Page
         <div class="wrap">
             <h1><?php echo esc_html__('AdsDestroyer', 'ads-destroyer'); ?></h1>
             <?php
-            $notice_code = isset($_GET['aidad_notice']) ? sanitize_key((string) $_GET['aidad_notice']) : '';
-            if ($notice_code) {
+            $notice_code = isset($_GET['adsd_notice']) ? sanitize_key((string) $_GET['adsd_notice']) : '';
+            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+            if ($notice_code && $nonce && wp_verify_nonce($nonce, 'adsd_notice_' . $notice_code)) {
                 $messages = [
                     'general_ok' => __('Settings saved.', 'ads-destroyer'),
                     'logging_ok' => __('Settings saved.', 'ads-destroyer'),
@@ -69,17 +99,17 @@ class Settings_Page
             <h2><?php echo esc_html__('General', 'ads-destroyer'); ?></h2>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
                   style="margin: 8px 0; display:grid; grid-template-columns: 1fr; gap:12px; max-width:840px;">
-                <?php wp_nonce_field('aidad_update_general'); ?>
-                <input type="hidden" name="action" value="aidad_update_general"/>
+                <?php wp_nonce_field('adsd_update_general'); ?>
+                <input type="hidden" name="action" value="adsd_update_general"/>
                 <label title="<?php echo esc_attr__('Show the Selector button in the admin bar for allowed roles.', 'ads-destroyer'); ?>">
                     <input type="checkbox" name="show_admin_bar_button"
                            value="1" <?php checked(empty($opts['ui']['show_admin_bar_button']) ? true : (bool)$opts['ui']['show_admin_bar_button']); ?> />
                     <?php echo esc_html__('Show “Selector” button in the admin bar', 'ads-destroyer'); ?>
                 </label>
                 <div>
-                    <label for="aidad-roles-box" style="display:block; font-weight:600;"
+                    <label for="adsd-roles-box" style="display:block; font-weight:600;"
                            title="<?php echo esc_attr__('Choose which user roles can hide blocks and manage rules.', 'ads-destroyer'); ?>"><?php echo esc_html__('Available roles', 'ads-destroyer'); ?></label>
-                    <div id="aidad-roles-box"
+                    <div id="adsd-roles-box"
                          style="border:1px solid #ccd0d4; height:150px; width:250px; overflow:auto; padding:8px; display:block; background:#fff;">
                         <?php
                         $editable_roles = function_exists('get_editable_roles') ? get_editable_roles() : [];
@@ -110,8 +140,8 @@ class Settings_Page
 
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
                   style="margin: 8px 0; display:flex; gap:16px; align-items:center;">
-                <?php wp_nonce_field('aidad_reset_rules'); ?>
-                <input type="hidden" name="action" value="aidad_reset_rules"/>
+                <?php wp_nonce_field('adsd_reset_rules'); ?>
+                <input type="hidden" name="action" value="adsd_reset_rules"/>
                 <button type="submit" class="button button-secondary"
                         onclick="return confirm('<?php echo esc_js(__('Are you sure you want to reset all rules?', 'ads-destroyer')); ?>');"
                         title="<?php echo esc_attr__('Delete all rules permanently. This cannot be undone.', 'ads-destroyer'); ?>">
@@ -122,30 +152,7 @@ class Settings_Page
 
             <?php $this->render_rules_table($opts); ?>
 
-            <script>
-                (function () {
-                    document.addEventListener('click', function (e) {
-                        const btn = e.target.closest('[data-aidad-action]');
-                        if (!btn) return;
-                        const action = btn.getAttribute('data-aidad-action');
-                        const row = btn.closest('tr');
-                        if (!row) return;
-                        if (action === 'edit') {
-                            row.classList.add('aidad-editing');
-                            const ta = row.querySelector('textarea[name="xpath"]');
-                            if (ta) {
-                                ta.focus();
-                            }
-                            e.preventDefault();
-                        } else if (action === 'cancel') {
-                            row.classList.remove('aidad-editing');
-                            e.preventDefault();
-                        }
-                    });
-                })();
-            </script>
-
-            <div class="aidad-instructions"
+            <div class="adsd-instructions"
                  style="margin-top:16px; width:100%; background:#fff; border:1px solid #e2e4e7; padding:16px; border-radius:4px; box-sizing:border-box;">
                 <h3 style="margin-top:0;">&nbsp;<?php echo esc_html__('Usage instructions', 'ads-destroyer'); ?></h3>
                 <ol style="padding-left:18px;">
@@ -171,7 +178,7 @@ class Settings_Page
     {
         $rules = (array)($opts['rules'] ?? []);
         ?>
-        <table class="widefat aidad-rules-table">
+        <table class="widefat adsd-rules-table">
             <thead>
             <tr>
                 <th style="width:70px"><?php echo esc_html__('Active', 'ads-destroyer'); ?></th>
@@ -190,20 +197,20 @@ class Settings_Page
                 $created = (string)($rule['created_at'] ?? '');
                 $info = trim(sprintf('%s | %s%s', $created, $period_label, $author_name ? ' | ' . $author_name : ''));
                 ?>
-                <tr class="aidad-row" data-rule-id="<?php echo esc_attr((string)$rule['id']); ?>">
+                <tr class="adsd-row" data-rule-id="<?php echo esc_attr((string)$rule['id']); ?>">
                     <td><?php echo !empty($rule['active']) ? '✓' : '—'; ?></td>
                     <td>
-                        <div class="aidad-xpath-view"
+                        <div class="adsd-xpath-view"
                              style="font-family: Menlo, Monaco, Consolas, 'Courier New', monospace; font-size: 12px; line-height:1.4; word-break: break-all;">
                             <code style="font-size:12px; white-space: pre-wrap; display:block;">
                                 <?php echo esc_html((string)$rule['xpath']); ?>
                             </code>
                         </div>
-                        <form class="aidad-xpath-edit" method="post"
+                        <form class="adsd-xpath-edit" method="post"
                               action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
                               style="display:none; margin:0;">
-                            <?php wp_nonce_field('aidad_update_rule'); ?>
-                            <input type="hidden" name="action" value="aidad_update_rule"/>
+                            <?php wp_nonce_field('adsd_update_rule'); ?>
+                            <input type="hidden" name="action" value="adsd_update_rule"/>
                             <input type="hidden" name="rule_id" value="<?php echo esc_attr((string)$rule['id']); ?>"/>
                             <textarea name="xpath" rows="4"
                                       style="width:100%; font-family: Menlo, Monaco, Consolas, 'Courier New', monospace; font-size:12px;"><?php echo esc_textarea((string)$rule['xpath']); ?></textarea>
@@ -211,28 +218,28 @@ class Settings_Page
                                    value="<?php echo esc_attr((string)$expires_at); ?>"/>
                             <div style="margin-top:6px;">
                                 <button type="submit" class="button button-small"
-                                        data-aidad-action="save"><?php esc_html_e('Save', 'ads-destroyer'); ?></button>
+                                        data-adsd-action="save"><?php esc_html_e('Save', 'ads-destroyer'); ?></button>
                                 <a href="#" class="button button-small"
-                                   data-aidad-action="cancel"><?php esc_html_e('Cancel', 'ads-destroyer'); ?></a>
+                                   data-adsd-action="cancel"><?php esc_html_e('Cancel', 'ads-destroyer'); ?></a>
                             </div>
                         </form>
                     </td>
                     <td><span style="font-size:12px; color:#555;"><?php echo esc_html($info); ?></span></td>
                     <td>
                         <a href="#" class="button button-small"
-                           data-aidad-action="edit"><?php esc_html_e('Edit', 'ads-destroyer'); ?></a>
+                           data-adsd-action="edit"><?php esc_html_e('Edit', 'ads-destroyer'); ?></a>
                         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
                               style="display:inline-block;margin-left:6px;">
-                            <?php wp_nonce_field('aidad_toggle_rule_active'); ?>
-                            <input type="hidden" name="action" value="aidad_toggle_rule_active"/>
+                            <?php wp_nonce_field('adsd_toggle_rule_active'); ?>
+                            <input type="hidden" name="action" value="adsd_toggle_rule_active"/>
                             <input type="hidden" name="rule_id" value="<?php echo esc_attr((string)$rule['id']); ?>"/>
                             <button type="submit"
                                     class="button button-small"><?php echo !empty($rule['active']) ? esc_html__('Deactivate', 'ads-destroyer') : esc_html__('Activate', 'ads-destroyer'); ?></button>
                         </form>
                         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
                               style="display:inline-block;margin-left:6px;">
-                            <?php wp_nonce_field('aidad_delete_rule'); ?>
-                            <input type="hidden" name="action" value="aidad_delete_rule"/>
+                            <?php wp_nonce_field('adsd_delete_rule'); ?>
+                            <input type="hidden" name="action" value="adsd_delete_rule"/>
                             <input type="hidden" name="rule_id" value="<?php echo esc_attr((string)$rule['id']); ?>"/>
                             <button type="submit" class="button button-small button-link-delete"
                                     onclick="return confirm('<?php echo esc_js(__('Delete this rule?', 'ads-destroyer')); ?>');"><?php echo esc_html__('Delete', 'ads-destroyer'); ?></button>
@@ -242,19 +249,6 @@ class Settings_Page
             <?php endforeach; ?>
             </tbody>
         </table>
-        <style>
-            .aidad-row.aidad-editing .aidad-xpath-view {
-                display: none;
-            }
-
-            .aidad-row.aidad-editing .aidad-xpath-edit {
-                display: block;
-            }
-
-            .widefat.aidad-rules-table td, .widefat.aidad-rules-table th {
-                font-size: 12px;
-            }
-        </style>
         <?php
     }
 
@@ -266,9 +260,9 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_reset_rules');
+        check_admin_referer('adsd_reset_rules');
         $this->options_repository->clear_rules();
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'reset_ok'], admin_url('options-general.php'));
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'reset_ok', '_wpnonce' => wp_create_nonce('adsd_notice_reset_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }
@@ -281,12 +275,12 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_delete_rule');
+        check_admin_referer('adsd_delete_rule');
         $rule_id = isset($_POST['rule_id']) ? sanitize_key((string)$_POST['rule_id']) : '';
         if ($rule_id) {
             $this->options_repository->delete_rule($rule_id);
         }
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'delete_ok'], admin_url('options-general.php'));
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'delete_ok', '_wpnonce' => wp_create_nonce('adsd_notice_delete_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }
@@ -299,7 +293,7 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_update_rule');
+        check_admin_referer('adsd_update_rule');
         $rule_id = isset($_POST['rule_id']) ? sanitize_key((string)$_POST['rule_id']) : '';
         $label = isset($_POST['label']) ? sanitize_text_field(wp_unslash((string)$_POST['label'])) : '';
         $xpath = isset($_POST['xpath']) ? wp_kses_post(wp_unslash((string)$_POST['xpath'])) : '';
@@ -311,7 +305,7 @@ class Settings_Page
                     'expires_at' => $expires,
             ]);
         }
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'update_ok'], admin_url('options-general.php'));
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'update_ok', '_wpnonce' => wp_create_nonce('adsd_notice_update_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }
@@ -324,7 +318,7 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_toggle_rule_active');
+        check_admin_referer('adsd_toggle_rule_active');
         $rule_id = isset($_POST['rule_id']) ? sanitize_key((string)$_POST['rule_id']) : '';
         if ($rule_id) {
             $rule = $this->options_repository->get_rule($rule_id);
@@ -333,7 +327,7 @@ class Settings_Page
                 $this->options_repository->update_rule($rule_id, ['active' => !$current]);
             }
         }
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'toggle_ok'], admin_url('options-general.php'));
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'toggle_ok', '_wpnonce' => wp_create_nonce('adsd_notice_toggle_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }
@@ -346,14 +340,14 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_update_logging');
+        check_admin_referer('adsd_update_logging');
         $enabled = isset($_POST['logging_enabled']) ? 1 : 0;
         // Sync both repository option and global logger option for consistency
         $opts = $this->options_repository->get_all();
         $opts['logging']['enabled'] = (bool)$enabled;
         $this->options_repository->save_all($opts);
-        update_option('aidad_logging_enabled', (bool)$enabled);
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'logging_ok'], admin_url('options-general.php'));
+        update_option('adsd_logging_enabled', (bool)$enabled);
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'logging_ok', '_wpnonce' => wp_create_nonce('adsd_notice_logging_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }
@@ -366,7 +360,7 @@ class Settings_Page
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Insufficient permissions', 'ads-destroyer'));
         }
-        check_admin_referer('aidad_update_general');
+        check_admin_referer('adsd_update_general');
         $show_button = isset($_POST['show_admin_bar_button']) ? 1 : 0;
         $roles = isset($_POST['roles_allowed']) && is_array($_POST['roles_allowed']) ? array_map('sanitize_key', (array)$_POST['roles_allowed']) : [];
         $logging_enabled = isset($_POST['logging_enabled']) ? 1 : 0;
@@ -380,8 +374,8 @@ class Settings_Page
         $opts['logging']['enabled'] = (bool)$logging_enabled;
         $this->options_repository->save_all($opts);
         // Keep global logger option in sync as well.
-        update_option('aidad_logging_enabled', (bool)$logging_enabled);
-        $redirect = add_query_arg(['page' => $this->menu_slug, 'aidad_notice' => 'general_ok'], admin_url('options-general.php'));
+        update_option('adsd_logging_enabled', (bool)$logging_enabled);
+        $redirect = add_query_arg(['page' => $this->menu_slug, 'adsd_notice' => 'general_ok', '_wpnonce' => wp_create_nonce('adsd_notice_general_ok')], admin_url('options-general.php'));
         wp_safe_redirect($redirect);
         exit;
     }

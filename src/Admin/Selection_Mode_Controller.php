@@ -1,11 +1,11 @@
 <?php
 
-namespace AIDAD\Admin;
+namespace ADSD\Admin;
 
-use AIDAD\Logging\Logger;
-use AIDAD\Security\Capabilities_Service;
-use AIDAD\Security\Nonce_Service;
-use AIDAD\Settings\Options_Repository;
+use ADSD\Logging\Logger;
+use ADSD\Security\Capabilities_Service;
+use ADSD\Security\Nonce_Service;
+use ADSD\Settings\Options_Repository;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -36,7 +36,7 @@ class Selection_Mode_Controller {
      */
     public function register_routes(): void {
         register_rest_route(
-            'aidad/v1',
+            'adsd/v1',
             '/rules',
             [
                 [
@@ -54,7 +54,7 @@ class Selection_Mode_Controller {
 
         // Reset all rules at once (register before parameterized route to avoid conflicts)
         register_rest_route(
-            'aidad/v1',
+            'adsd/v1',
             '/rules/reset',
             [
                 'methods'             => 'POST',
@@ -64,7 +64,7 @@ class Selection_Mode_Controller {
         );
 
         register_rest_route(
-            'aidad/v1',
+            'adsd/v1',
             '/rules/(?P<id>[a-zA-Z0-9_-]+)',
             [
                 [
@@ -81,7 +81,7 @@ class Selection_Mode_Controller {
         );
 
         register_rest_route(
-            'aidad/v1',
+            'adsd/v1',
             '/test',
             [
                 'methods'             => 'POST',

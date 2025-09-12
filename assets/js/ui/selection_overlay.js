@@ -25,17 +25,24 @@ export class Selection_Overlay {
     init() {
         if (this.hover_mask) return
         this.hover_mask = document.createElement('div')
-        this.hover_mask.className = 'aidad-overlay aidad-hover-mask'
+        this.hover_mask.className = 'adsd-overlay adsd-hover-mask'
         this.selected_mask = document.createElement('div')
-        this.selected_mask.className = 'aidad-overlay aidad-selected-mask'
+        this.selected_mask.className = 'adsd-overlay adsd-selected-mask'
         this.hide_button = document.createElement('button')
         this.hide_button.type = 'button'
-        this.hide_button.className = 'aidad-hide-button'
+        this.hide_button.className = 'adsd-hide-button'
         this.hide_button.textContent = this.config.i18n?.hide || __('Hide block', 'ads-destroyer')
         this.hide_button.addEventListener('click', (e) => this.toggle_context_menu(e))
 
+        // Cancel selection button
+        this.cancel_button = document.createElement('button')
+        this.cancel_button.type = 'button'
+        this.cancel_button.className = 'adsd-cancel-button'
+        this.cancel_button.textContent = __('Cancel', 'ads-destroyer')
+        this.cancel_button.addEventListener('click', (e) => this.cancel_selection(e))
+
         this.context_menu = document.createElement('div')
-        this.context_menu.className = 'aidad-context-menu'
+        this.context_menu.className = 'adsd-context-menu'
         this.context_menu.style.display = 'none'
         this.menu_items = [
             {label: __('Hide forever', 'ads-destroyer'), seconds: 0},
@@ -43,16 +50,17 @@ export class Selection_Overlay {
             {label: __('For a week', 'ads-destroyer'), seconds: 604800},
             {label: __('For a month', 'ads-destroyer'), seconds: 2592000},
         ]
-        this.context_menu.innerHTML = this.menu_items.map((it, idx) => `<button type="button" class="aidad-context-menu__item" data-seconds="${it.seconds}">${it.label}</button>`).join('')
+        this.context_menu.innerHTML = this.menu_items.map((it, idx) => `<button type="button" class="adsd-context-menu__item" data-seconds="${it.seconds}">${it.label}</button>`).join('')
 
         document.body.appendChild(this.hover_mask)
         document.body.appendChild(this.selected_mask)
         document.body.appendChild(this.hide_button)
+        document.body.appendChild(this.cancel_button)
         document.body.appendChild(this.context_menu)
 
         // hover badge
         this.badge = document.createElement('div')
-        this.badge.className = 'aidad-badge'
+        this.badge.className = 'adsd-badge'
         this.badge.style.display = 'none'
         document.body.appendChild(this.badge)
 
@@ -64,10 +72,10 @@ export class Selection_Overlay {
 
     destroy() {
         this.detach_listeners()
-        for (const el of [this.hover_mask, this.selected_mask, this.hide_button, this.context_menu, this.hint_box, this.badge]) {
+        for (const el of [this.hover_mask, this.selected_mask, this.hide_button, this.cancel_button, this.context_menu, this.hint_box, this.badge]) {
             if (el && el.parentNode) el.parentNode.removeChild(el)
         }
-        this.hover_mask = this.selected_mask = this.hide_button = this.context_menu = this.hint_box = this.badge = null
+        this.hover_mask = this.selected_mask = this.hide_button = this.cancel_button = this.context_menu = this.hint_box = this.badge = null
     }
 
     attach_listeners() {
@@ -86,7 +94,7 @@ export class Selection_Overlay {
         this.state.set_active(active)
         // persist selection mode flag across reloads
         try {
-            sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', active ? '1' : '0')
+            sessionStorage.setItem('ADSD_SELECTION_ACTIVE', active ? '1' : '0')
         } catch (_) {
         }
         if (!active) {
@@ -114,12 +122,19 @@ export class Selection_Overlay {
         if (!on && this.badge) {
             this.badge.style.display = 'none'
         }
-        // Hide button visible only when a target is selected
+        // Hide button and cancel button visible only when a target is selected
         if (this.hide_button) {
             const show_btn = on && !!this.state.selected_target
             this.hide_button.style.display = show_btn ? 'block' : 'none'
             if (show_btn) {
                 this.position_button_selected(this.state.selected_target)
+            }
+        }
+        if (this.cancel_button) {
+            const show_cancel = on && !!this.state.selected_target
+            this.cancel_button.style.display = show_cancel ? 'block' : 'none'
+            if (show_cancel) {
+                this.position_cancel_button(this.state.selected_target)
             }
         }
         if (this.context_menu && (!on || !this.state.selected_target)) {
@@ -173,10 +188,17 @@ export class Selection_Overlay {
 
     on_key_down(e) {
         const key = e.key.toLowerCase()
-        // ESC exits selection mode
+        // ESC behavior: first press - cancel selection, second press - exit mode
         if (this.state.active && key === 'escape') {
             e.preventDefault()
-            this.toggle(false)
+            if (this.state.selected_target) {
+                // First ESC: cancel current selection
+                this.state.set_selected_target(null)
+                this.update_visibility()
+            } else {
+                // Second ESC: exit selection mode
+                this.toggle(false)
+            }
             return
         }
 
@@ -193,7 +215,7 @@ export class Selection_Overlay {
         const el = e.target
         if (!(el instanceof Element)) return null
         // Avoid overlay picking its own elements
-        if (el.classList.contains('aidad-overlay') || el.classList.contains('aidad-hide-button') || el.classList.contains('aidad-dim') || el.closest('.aidad-context-menu') || el.closest('.aidad-hint')) {
+        if (el.classList.contains('adsd-overlay') || el.classList.contains('adsd-hide-button') || el.classList.contains('adsd-dim') || el.closest('.adsd-context-menu') || el.closest('.adsd-hint')) {
             return null
         }
         // If a block is already selected, do not allow selecting inner elements until user exits selection or reselects
@@ -254,6 +276,17 @@ export class Selection_Overlay {
         this.hide_button.style.top = `${Math.max(0, top)}px`
     }
 
+    position_cancel_button(target) {
+        if (!this.cancel_button || !target || !(target instanceof Element)) return
+        const rect = target.getBoundingClientRect()
+        // Position cancel button to the right of hide button with 10px gap
+        const hideButtonWidth = this.hide_button ? this.hide_button.offsetWidth : 80 // fallback width
+        const left = rect.left + window.scrollX + rect.width / 2 + hideButtonWidth / 2 + 10
+        const top = rect.top + window.scrollY + rect.height / 2 - this.cancel_button.offsetHeight / 2
+        this.cancel_button.style.left = `${Math.max(0, left)}px`
+        this.cancel_button.style.top = `${Math.max(0, top)}px`
+    }
+
     toggle_context_menu(e) {
         e.preventDefault()
         e.stopPropagation()
@@ -273,7 +306,7 @@ export class Selection_Overlay {
         this.context_menu.style.left = `${left}px`
         this.context_menu.style.top = `${top}px`
         // Bind item clicks
-        this.context_menu.querySelectorAll('.aidad-context-menu__item').forEach((el) => {
+        this.context_menu.querySelectorAll('.adsd-context-menu__item').forEach((el) => {
             el.addEventListener('click', (evt) => {
                 evt.preventDefault()
                 evt.stopPropagation()
@@ -301,9 +334,9 @@ export class Selection_Overlay {
         const t = e.target
         if (!(t instanceof Element)) return false
         return (
-            t.classList.contains('aidad-hide-button') ||
-            t.closest('.aidad-context-menu') !== null ||
-            t.classList.contains('aidad-overlay')
+            t.classList.contains('adsd-hide-button') ||
+            t.closest('.adsd-context-menu') !== null ||
+            t.classList.contains('adsd-overlay')
         )
     }
 
@@ -316,25 +349,97 @@ export class Selection_Overlay {
             alert(this.config.i18n?.no_match || __('XPath does not match elements on this page', 'ads-destroyer'))
             return
         }
+        
+        // Hide element immediately for better UX
+        const originalDisplay = best.element.style.display
+        const originalVisibility = best.element.style.visibility
+        best.element.style.display = 'none'
+        best.element.style.visibility = 'hidden'
+        
         const expires_at = seconds === 0 ? 0 : Math.floor(Date.now() / 1000) + seconds
         try {
             const res = await this.api.create_rule({xpath: best.xpath, label: '', active: true, expires_at})
-            try {
-                best.element?.remove()
-            } catch (_) {
-            }
             this.close_context_menu()
-            // keep selection mode active across reload to see the effect
-            try {
-                sessionStorage.setItem('AIDAD_SELECTION_ACTIVE', '1')
-            } catch (_) {
-            }
-            window.location.reload()
+            // Clear selection and remove highlighting after successful save
+            this.state.set_selected_target(null)
+            this.state.set_hover_target(null)
+            this.update_visibility()
+            // Hide overlays
+            if (this.selected_mask) this.selected_mask.style.display = 'none'
+            if (this.hover_mask) this.hover_mask.style.display = 'none'
+            // Show success notification
+            this.show_notification('Block hidden successfully!', 'success')
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'))
+            // Restore element visibility on error
+            best.element.style.display = originalDisplay
+            best.element.style.visibility = originalVisibility
+            // Show error notification
+            this.show_notification(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'), 'error')
         }
+    }
+
+    cancel_selection(e) {
+        e.preventDefault()
+        e.stopPropagation()
+        // Clear selection and remove highlighting
+        this.state.set_selected_target(null)
+        this.state.set_hover_target(null)
+        this.update_visibility()
+        this.close_context_menu()
+        // Hide overlays
+        if (this.selected_mask) this.selected_mask.style.display = 'none'
+        if (this.hover_mask) this.hover_mask.style.display = 'none'
+    }
+
+    show_notification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div')
+        notification.className = `adsd-notification adsd-notification--${type}`
+        notification.textContent = message
+        
+        // Style the notification
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '12px 16px',
+            borderRadius: '4px',
+            color: 'white',
+            fontWeight: '500',
+            zIndex: '999999',
+            maxWidth: '300px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            fontSize: '14px',
+            lineHeight: '1.4'
+        })
+        
+        // Set background color based on type
+        if (type === 'success') {
+            notification.style.backgroundColor = '#00c853'
+        } else if (type === 'error') {
+            notification.style.backgroundColor = '#d50000'
+        } else {
+            notification.style.backgroundColor = '#2196f3'
+        }
+        
+        // Add to page
+        document.body.appendChild(notification)
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification)
+            }
+        }, 4000)
+        
+        // Add click to dismiss
+        notification.addEventListener('click', () => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification)
+            }
+        })
     }
 
     // --- Hint box ---
@@ -342,28 +447,33 @@ export class Selection_Overlay {
     create_hint_box() {
         if (this.hint_box) return
         const box = document.createElement('div')
-        box.className = 'aidad-hint'
-        box.setAttribute('data-aidad-ui', '1')
+        box.className = 'adsd-hint'
+        box.setAttribute('data-adsd-ui', '1')
         const title = document.createElement('div')
-        title.className = 'aidad-hint__title'
+        title.className = 'adsd-hint__title'
         title.textContent = this.config.i18n?.hint_title || __('Selection mode is ON', 'ads-destroyer')
         const text = document.createElement('div')
-        text.className = 'aidad-hint__text'
+        text.className = 'adsd-hint__text'
         text.textContent = this.config.i18n?.hint_text || __('Hover a block to preview, then click it and press “Hide block”. Press Esc to exit. If you hid something important — press “Reset all” below.', 'ads-destroyer')
         const actions = document.createElement('div')
-        actions.className = 'aidad-hint__actions'
+        actions.className = 'adsd-hint__actions'
         const exitBtn = document.createElement('button')
         exitBtn.type = 'button'
-        exitBtn.className = 'aidad-hint__btn'
+        exitBtn.className = 'adsd-hint__btn'
         exitBtn.textContent = __('Exit mode', 'ads-destroyer')
         exitBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            // Clear sessionStorage to prevent mode from staying active after page reload
+            try {
+                sessionStorage.removeItem('ADSD_SELECTION_ACTIVE')
+            } catch (_) {
+            }
             this.toggle(false)
         }, true)
         const resetBtn = document.createElement('button')
         resetBtn.type = 'button'
-        resetBtn.className = 'aidad-hint__btn'
+        resetBtn.className = 'adsd-hint__btn'
         resetBtn.textContent = __('Reset all', 'ads-destroyer')
         resetBtn.addEventListener('click', async (e) => {
             e.preventDefault();

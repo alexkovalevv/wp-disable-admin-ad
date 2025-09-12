@@ -1,6 +1,6 @@
 <?php
 
-namespace AIDAD\Core;
+namespace ADSD\Core;
 
 /**
  * Lightweight service container for dependency management.

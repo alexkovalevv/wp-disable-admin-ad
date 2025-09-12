@@ -1,6 +1,6 @@
 <?php
 
-namespace AIDAD\Logging;
+namespace ADSD\Logging;
 
 /**
  * Minimal logger storing entries in options with rotation.
@@ -19,8 +19,8 @@ class Logger {
      * @param array<string,mixed>  $context
      */
     public function log( string $event, array $context = [] ): void {
-        $enabled = (bool) get_option( 'aidad_logging_enabled', true );
-        $max     = (int) get_option( 'aidad_logging_max', 500 );
+        $enabled = (bool) get_option( 'adsd_logging_enabled', true );
+        $max     = (int) get_option( 'adsd_logging_max', 500 );
         if ( ! $enabled ) {
             return;
         }
