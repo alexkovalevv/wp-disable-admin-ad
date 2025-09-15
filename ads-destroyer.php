@@ -4,7 +4,7 @@
  * Description: Hides HTML ad blocks in the WordPress admin panel using saved XPath rules. Enables element selection mode, output buffering, and settings.
  * Author: wpaifactory
  * Author URI: https://wp-aifactory.com
- * Version: 1.0.20
+ * Version: 1.0.21
  * Requires PHP: 8.0
  * Requires at least: 6.0
  * Text Domain: ads-destroyer
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 // Define plugin constants.
 const ADSD_PLUGIN_FILE = __FILE__;
 const ADSD_PLUGIN_DIR = __DIR__;
-const ADSD_PLUGIN_VERSION = '1.0.20';
+const ADSD_PLUGIN_VERSION = '1.0.21';
 
 if (!defined('ADSD_PLUGIN_URL')) {
     define('ADSD_PLUGIN_URL', plugin_dir_url(__FILE__));

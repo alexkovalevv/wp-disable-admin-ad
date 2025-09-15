@@ -56,6 +56,12 @@ class Plugin
         add_action('admin_post_adsd_update_logging', [$this->container->get('settings_page'), 'handle_update_logging']);
         add_action('admin_post_adsd_update_general', [$this->container->get('settings_page'), 'handle_update_general']);
         add_action('admin_post_adsd_toggle_rule_active', [$this->container->get('settings_page'), 'handle_toggle_rule_active']);
+        
+        // AJAX handlers for modal operations
+        add_action('wp_ajax_adsd_update_rule', [$this->container->get('settings_page'), 'handle_ajax_update_rule']);
+        add_action('wp_ajax_adsd_toggle_rule', [$this->container->get('settings_page'), 'handle_ajax_toggle_rule']);
+        add_action('wp_ajax_adsd_delete_rule', [$this->container->get('settings_page'), 'handle_ajax_delete_rule']);
+        add_action('wp_ajax_adsd_get_rule', [$this->container->get('settings_page'), 'handle_ajax_get_rule']);
     }
 
     /**

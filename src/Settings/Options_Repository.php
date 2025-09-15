@@ -61,7 +61,7 @@ class Options_Repository
     /**
      * Add a new rule.
      *
-     * @param array{xpath:string,label:string,active:bool} $data
+     * @param array{xpath:string,label:string,active:bool,description?:string,page_title?:string,page_url?:string} $data
      * @return array<string,mixed>
      */
     public function add_rule(array $data): array
@@ -76,6 +76,9 @@ class Options_Repository
             'author' => get_current_user_id(),
             'created_at' => current_time('mysql', true),
             'expires_at' => isset($data['expires_at']) ? (int)$data['expires_at'] : 0,
+            'description' => $data['description'] ?? '',
+            'page_title' => $data['page_title'] ?? '',
+            'page_url' => $data['page_url'] ?? '',
         ];
         $all['rules'][] = $rule;
         $this->save_all($all);
@@ -86,7 +89,7 @@ class Options_Repository
      * Update a rule by id.
      *
      * @param string $id
-     * @param array{xpath?:string,label?:string,active?:bool} $data
+     * @param array{xpath?:string,label?:string,active?:bool,description?:string,page_title?:string,page_url?:string} $data
      * @return array<string,mixed>|null
      */
     public function update_rule(string $id, array $data): ?array
@@ -105,6 +108,15 @@ class Options_Repository
                 }
                 if (isset($data['expires_at'])) {
                     $rule['expires_at'] = (int)$data['expires_at'];
+                }
+                if (isset($data['description'])) {
+                    $rule['description'] = sanitize_textarea_field((string)$data['description']);
+                }
+                if (isset($data['page_title'])) {
+                    $rule['page_title'] = sanitize_text_field((string)$data['page_title']);
+                }
+                if (isset($data['page_url'])) {
+                    $rule['page_url'] = esc_url_raw((string)$data['page_url']);
                 }
                 $this->save_all($all);
                 return $rule;
@@ -128,6 +140,34 @@ class Options_Repository
         }
         $this->save_all($all);
         return true;
+    }
+
+    /**
+     * Get a single rule by id.
+     */
+    public function get_rule(string $id): ?array
+    {
+        $all = $this->get_all();
+        foreach ($all['rules'] as $rule) {
+            if ($rule['id'] === $id) {
+                return $rule;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find existing rule by XPath.
+     */
+    public function find_rule_by_xpath(string $xpath): ?array
+    {
+        $all = $this->get_all();
+        foreach ($all['rules'] as $rule) {
+            if ($rule['xpath'] === $xpath) {
+                return $rule;
+            }
+        }
+        return null;
     }
 
     /**
@@ -223,8 +263,9 @@ class Options_Repository
         $xpath = wp_strip_all_tags($xpath);
         $xpath = preg_replace('/[\x00-\x1F\x7F]/u', '', $xpath);
         $xpath = trim($xpath);
-        if (strlen($xpath) > 500) {
-            $xpath = substr($xpath, 0, 500);
+        // Increased limit to 2000 characters to support complex XPath expressions
+        if (strlen($xpath) > 2000) {
+            $xpath = substr($xpath, 0, 2000);
         }
         return $xpath;
     }

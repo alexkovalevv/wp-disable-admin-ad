@@ -1,0 +1,355 @@
+/**
+ * Admin settings page styles for AdsDestroyer
+ * Styles for the rules table and modal editing
+ */
+
+/* Rules Table Styles */
+.adsd-rules-table-wrapper {
+    margin-top: 20px;
+}
+
+.adsd-rules-table {
+    .column-xpath {
+        width: 40% !important;
+    }
+    
+    .column-page_info {
+        width: 20% !important;
+    }
+    
+    .column-info {
+        width: 15% !important;
+    }
+    
+    .column-actions {
+        width: 15% !important;
+    }
+    
+    .column-active {
+        width: 10% !important;
+    }
+    
+    /* Ensure rows are visible */
+    tbody tr {
+        display: table-row !important;
+        visibility: visible !important;
+        
+        &:hover {
+            background-color: #f9f9f9;
+        }
+    }
+    
+    /* Fix for collapsed rows */
+    .row-actions {
+        visibility: visible !important;
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+/* XPath Column Styles */
+.adsd-xpath-container {
+    position: relative;
+}
+
+.adsd-xpath-content {
+    max-height: 120px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 8px;
+    background: #f9f9f9;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.adsd-xpath-code {
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #333;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.adsd-description {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.adsd-description-text {
+    color: #333;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.4;
+    display: block;
+}
+
+.adsd-page-info {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.adsd-page-title {
+    color: #666;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.adsd-page-details {
+    .adsd-page-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 12px;
+        font-style: normal;
+        margin-bottom: 4px;
+    }
+    
+    .adsd-page-url {
+        font-size: 11px;
+        
+        a {
+            color: #0073aa;
+            text-decoration: none;
+            
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+.adsd-no-info {
+    color: #999;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.adsd-rule-info {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.3;
+}
+
+/* Status Indicators */
+.adsd-status {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.adsd-status-active {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.adsd-status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Action Buttons */
+.adsd-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    
+    .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        margin: 0;
+        border-radius: 3px;
+        text-decoration: none;
+        
+        .dashicons {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            line-height: 1;
+        }
+        
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        &.adsd-edit-rule {
+            background: #0073aa;
+            border-color: #0073aa;
+            color: #fff;
+            
+            &:hover {
+                background: #005177;
+                border-color: #005177;
+                color: #fff;
+            }
+        }
+        
+        &.adsd-toggle-rule {
+            background: #00a32a;
+            border-color: #00a32a;
+            color: #fff;
+            
+            &:hover {
+                background: #007a1f;
+                border-color: #007a1f;
+                color: #fff;
+            }
+        }
+        
+        &.adsd-delete-rule {
+            background: #d63638;
+            border-color: #d63638;
+            color: #fff;
+            
+            &:hover {
+                background: #b32d2e;
+                border-color: #b32d2e;
+                color: #fff;
+            }
+        }
+    }
+}
+
+/* Modal Styles */
+.adsd-modal {
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adsd-modal-content {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.adsd-modal-header {
+    padding: 20px 20px 0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h2 {
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+}
+
+.adsd-modal-close {
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+    
+    &:hover {
+        color: #000;
+    }
+}
+
+.adsd-modal-body {
+    padding: 20px;
+    
+    .form-table {
+        margin: 0;
+        
+        th {
+            width: 150px;
+            padding: 15px 10px 15px 0;
+            vertical-align: top;
+        }
+        
+        td {
+            padding: 15px 0;
+        }
+        
+        .description {
+            margin-top: 5px;
+            font-style: italic;
+            color: #666;
+        }
+    }
+}
+
+.adsd-modal-footer {
+    padding: 0 20px 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+/* Notices */
+.adsd-notice {
+    margin: 15px 0;
+    padding: 12px;
+    border-left: 4px solid #00a0d2;
+    background: #f7f7f7;
+    border-radius: 0 3px 3px 0;
+    
+    &.adsd-notice-success {
+        border-left-color: #46b450;
+        background: #f0f8f0;
+    }
+    
+    &.adsd-notice-error {
+        border-left-color: #dc3232;
+        background: #fdf0f0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .adsd-modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .adsd-rules-table {
+        .column-xpath {
+            width: 50% !important;
+        }
+        
+        .column-page_info,
+        .column-info,
+        .column-actions {
+            width: 16.66% !important;
+        }
+    }
+}

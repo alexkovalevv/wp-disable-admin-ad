@@ -63,6 +63,17 @@ class Selection_Mode_Controller {
             ]
         );
 
+        // Activate existing rule
+        register_rest_route(
+            'adsd/v1',
+            '/rules/activate-existing',
+            [
+                'methods'             => 'POST',
+                'callback'            => [ $this, 'handle_activate_existing_rule' ],
+                'permission_callback' => [ $this, 'check_write_permission' ],
+            ]
+        );
+
         register_rest_route(
             'adsd/v1',
             '/rules/(?P<id>[a-zA-Z0-9_-]+)',
@@ -118,13 +129,56 @@ class Selection_Mode_Controller {
         if ( ! $this->nonce_service->verify_request( $request ) ) {
             return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
         }
+        
         $params = $this->sanitize_rule_params( $request->get_json_params() ?? [] );
         if ( is_wp_error( $params ) ) {
             return $params;
         }
+        
+        // Check for existing rule with same XPath
+        $existing_rule = $this->options_repository->find_rule_by_xpath( $params['xpath'] );
+        if ( $existing_rule ) {
+            return new WP_Error( 
+                'duplicate_xpath', 
+                __( 'A rule for hiding this element already exists. Do you want to activate it?', 'ads-destroyer' ), 
+                [ 
+                    'status' => 409,
+                    'existing_rule' => $existing_rule,
+                    'message' => __( 'A rule for hiding this element already exists. Do you want to activate it?', 'ads-destroyer' )
+                ] 
+            );
+        }
+        
         $rule  = $this->options_repository->add_rule( $params );
         $this->logger->log( 'rule_added', [ 'id' => $rule['id'] ] );
         return new WP_REST_Response( [ 'rule' => $rule ] );
+    }
+
+    /**
+     * POST /rules/activate-existing
+     */
+    public function handle_activate_existing_rule( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+        if ( ! $this->nonce_service->verify_request( $request ) ) {
+            return new WP_Error( 'invalid_nonce', __( 'Invalid nonce', 'ads-destroyer' ), [ 'status' => 403 ] );
+        }
+        
+        $rule_id = sanitize_key( $request->get_param( 'rule_id' ) );
+        if ( ! $rule_id ) {
+            return new WP_Error( 'missing_rule_id', __( 'Rule ID is required', 'ads-destroyer' ), [ 'status' => 400 ] );
+        }
+        
+        $rule = $this->options_repository->get_rule( $rule_id );
+        if ( ! $rule ) {
+            return new WP_Error( 'rule_not_found', __( 'Rule not found', 'ads-destroyer' ), [ 'status' => 404 ] );
+        }
+        
+        $updated_rule = $this->options_repository->update_rule( $rule_id, [ 'active' => true ] );
+        if ( $updated_rule ) {
+            $this->logger->log( 'rule_activated', [ 'id' => $rule_id ] );
+            return new WP_REST_Response( [ 'rule' => $updated_rule ] );
+        }
+        
+        return new WP_Error( 'activation_failed', __( 'Failed to activate rule', 'ads-destroyer' ), [ 'status' => 500 ] );
     }
 
     /**
@@ -210,11 +264,15 @@ class Selection_Mode_Controller {
             $expires_at = (int) $data['expires_at'];
             if ( $expires_at < 0 ) { $expires_at = 0; }
         }
+        $page_title = isset( $data['page_title'] ) ? sanitize_text_field( (string) $data['page_title'] ) : '';
+        $page_url = isset( $data['page_url'] ) ? esc_url_raw( (string) $data['page_url'] ) : '';
         return [
             'xpath'      => $xpath,
             'label'      => $label,
             'active'     => $active,
             'expires_at' => $expires_at,
+            'page_title' => $page_title,
+            'page_url'   => $page_url,
         ];
     }
 
@@ -225,8 +283,9 @@ class Selection_Mode_Controller {
         $xpath = wp_strip_all_tags( $xpath );
         $xpath = preg_replace( '/[\x00-\x1F\x7F]/u', '', $xpath );
         $xpath = trim( $xpath );
-        if ( strlen( $xpath ) > 500 ) {
-            $xpath = substr( $xpath, 0, 500 );
+        // Increased limit to 2000 characters to support complex XPath expressions
+        if ( strlen( $xpath ) > 2000 ) {
+            $xpath = substr( $xpath, 0, 2000 );
         }
         return $xpath;
     }

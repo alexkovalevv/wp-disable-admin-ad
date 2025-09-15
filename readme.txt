@@ -2,30 +2,43 @@
 Contributors: wpaifactory, alexkovalevv
 Author: wpaifactory
 Author URI: https://wp-aifactory.com
-Tags: disable, ads, notices, ad, block
+Tags: disable, notices, ad, focus, hide
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.20
+Stable tag: 1.0.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Hide ads and unwanted blocks in WP Admin with XPath rules, a visual selector, safe output filtering, and flexible settings.
+Clean up your WordPress admin panel. Easily remove intrusive ads, system notifications, confidential data, or any other elements using the power and precision of XPath selectors.
 
 == Description ==
 
-Disable Admin Ad hides or removes arbitrary HTML blocks in the WordPress admin using user-defined XPath rules.
+AdsDestroyer transforms your WordPress admin into a clean, distraction-free workspace by allowing you to hide or remove any unwanted elements with precision. Whether you want to focus on important tasks, remove distracting ads and notices, or customize your admin interface, this plugin provides the tools you need.
 
-Key features:
-- Visual selection mode: pick elements from the admin UI via a toolbar button (“Selector”).
-- Safe output filtering: HTML5 parsing (Masterminds HTML5) with placeholder removal to prevent broken markup.
-- XPath engine with dynamic class relaxation to better target CSS-in-JS elements.
-- Per-rule activation, expiration (duration), and labeling.
-- Settings page: manage rules (CRUD), reset all, network-aware options (per-site by default), logging.
-- Multisite support: per-site options with optional network-wide.
-- Security: REST nonce validation, capability checks, sanitization, no dangerous eval.
-- Performance: output buffering only when needed and only in admin area (never on frontend).
-- Localization-ready.
+**Perfect for:**
+- **Focus & Productivity**: Hide distracting admin notices, promotional banners, and unnecessary UI elements to concentrate on your work
+- **Brand Customization**: Remove third-party branding, API keys, and sensitive information from admin screens
+- **Clean Interface**: Eliminate clutter by hiding elements that can't be removed through standard WordPress settings
+- **Client Management**: Create cleaner admin experiences for clients by hiding complex settings and technical information
+- **Development Workflow**: Remove development notices, debug information, and testing elements from production admin
+
+**Key Features:**
+- **Visual Selection Mode**: Click the admin bar button and visually select any element to hide
+- **Smart XPath Engine**: Automatically generates precise targeting rules with Chrome DevTools-style XPath generation
+- **Flexible Duration**: Set rules to hide elements forever or for specific time periods (hours, days, weeks, months)
+- **Safe Removal**: Uses HTML5 parsing with placeholder replacement to prevent broken layouts
+- **Rule Management**: Full CRUD interface to edit, activate/deactivate, and delete rules
+- **Conflict Resolution**: Automatically detects duplicate rules and offers to activate existing ones
+- **Multisite Support**: Per-site or network-wide rule management
+- **Performance Optimized**: Only processes admin pages, never affects frontend performance
+
+**We drew inspiration from these plugins:**
+- Admin Menu Editor Pro
+- White Label CMS
+- Adminimize
+- Remove Admin Notices
+- Admin Columns Pro
 
 == Installation ==
 
@@ -35,11 +48,28 @@ Key features:
 
 == Usage ==
 
-- In the admin bar, click the "Selector" target icon.
-- Follow the hint: hover to preview, click to select, then click "Скрыть блок" to save a rule.
-- You will be prompted for a duration (hours). Enter 0 for "forever".
-- The block disappears immediately. On subsequent loads, the block remains hidden/removed.
-- Manage rules in Settings → AdsDestroyer - disable admin ad & adblocker: edit label/XPath/expiry, delete rules, reset all.
+**Quick Start:**
+1. **Activate Selection Mode**: Click the "Disable ad" button in the WordPress admin bar
+2. **Select Elements**: Hover over any element to preview it, then click to select
+3. **Choose Duration**: Click "Hide block" and select how long to hide the element:
+   - Hide forever (permanent)
+   - For a day (24 hours)
+   - For a week (7 days) 
+   - For a month (30 days)
+4. **Element Hidden**: The selected element disappears immediately and stays hidden based on your chosen duration
+
+**Managing Rules:**
+- **View All Rules**: Go to Settings → AdsDestroyer to see all your hidden elements
+- **Edit Rules**: Click the edit button to modify XPath rules, add descriptions, or change expiration dates
+- **Toggle Rules**: Activate/deactivate rules without deleting them
+- **Delete Rules**: Remove rules you no longer need
+- **Reset All**: Clear all rules at once if needed
+
+**Advanced Features:**
+- **Visual Selection**: The plugin automatically generates precise XPath rules using Chrome DevTools-style targeting
+- **Conflict Detection**: If you try to hide an element that's already hidden, the plugin offers to activate the existing rule
+- **Safe Removal**: Uses HTML5 parsing to prevent broken layouts when hiding elements
+- **Page Information**: Automatically tracks which page each rule was created on for better organization
 
 == Multisite ==
 
@@ -49,13 +79,25 @@ Key features:
 == FAQ ==
 
 = The page layout breaks after hiding a block =
-- Switch to "hide via CSS" mode. Or keep delete mode on but rely on placeholders. The plugin uses an HTML5 parser and placeholders to minimize breakage.
+- The plugin uses HTML5 parsing with placeholder replacement to minimize layout issues. If you still experience problems, try selecting a parent container instead of the specific element, or use the "Reset all rules" option to start fresh.
 
-= A block with CSS-in-JS classes is not hidden =
-- The plugin relaxes dynamic classes server-side and filters them client-side. Try re-selecting the parent container or a node with a stable id/label. Data attributes (data-test/testid/qa) are preferred.
+= A block with dynamic CSS classes is not hidden =
+- The plugin automatically handles dynamic classes and generates multiple XPath candidates. Try re-selecting the element or select a parent container with a stable ID. The plugin prioritizes elements with data attributes (data-test, data-testid, data-qa) for better targeting.
 
-= How to reset all rules? =
-- Settings → AdsDestroyer - disable admin ad & adblocker → "Reset all rules".
+= How do I reset all rules? =
+- Go to Settings → AdsDestroyer → "Reset all rules" button. This will remove all hidden elements and restore the original admin interface.
+
+= Can I hide elements temporarily? =
+- Yes! When creating a rule, you can choose from several duration options: hide forever, for a day, for a week, or for a month. Temporary rules automatically expire and restore the hidden elements.
+
+= What if I accidentally hide something important? =
+- Use the "Reset all rules" option in the settings page to restore all hidden elements. You can also edit individual rules to deactivate them without deleting them.
+
+= Does this plugin affect my website's frontend? =
+- No, this plugin only works in the WordPress admin area and never affects your website's frontend or public pages.
+
+= Can I use this on a multisite network? =
+- Yes, the plugin supports multisite installations with per-site rule management. Each site can have its own set of hidden elements.
 
 == Output Buffering ==
 
@@ -101,7 +143,22 @@ This plugin uses modern build tools for JavaScript and CSS compilation. To build
 - `build/css/` - Compiled CSS files
 - `build/compiled/` - Distribution packages
 
+== Screenshots ==
+
+1. Plugin settings page with rules table
+2. Visual selection mode with overlay
+3. Rule creation interface
+4. Admin interface with hidden elements
+
 == Changelog ==
+
+= 1.0.21 =
+- Completely redesigned readme.txt with comprehensive use cases and examples
+- Added detailed usage instructions with step-by-step guide
+- Updated FAQ section with current plugin features
+- Added inspiration credits for similar plugins
+- Enhanced description with focus on productivity and customization benefits
+- Improved documentation for better user understanding
 
 = 1.0.20 =
 - Added comprehensive build instructions to readme.txt

@@ -1,0 +1,18 @@
+/**
+ * Admin settings page styles for AdsDestroyer
+ * Styles for the rules table and inline editing
+ */
+.adsd-row.adsd-editing .adsd-xpath-view {
+  display: none;
+}
+
+.adsd-row.adsd-editing .adsd-xpath-edit {
+  display: block;
+}
+
+.widefat.adsd-rules-table td,
+.widefat.adsd-rules-table th {
+  font-size: 12px;
+}
+
+/*# sourceMappingURL=admin-settings.css.map */

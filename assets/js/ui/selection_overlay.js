@@ -16,6 +16,7 @@ export class Selection_Overlay {
         this.hide_button = null
         this.hint_box = null
         this.badge = null
+        this.is_processing = false // Flag to prevent multiple requests
 
         this.bound_mousemove = this.on_mouse_move.bind(this)
         this.bound_click = this.on_click.bind(this)
@@ -101,6 +102,9 @@ export class Selection_Overlay {
             this.state.set_hover_target(null)
             this.state.set_selected_target(null)
             this.close_context_menu()
+            // Reset processing flag and button loading state
+            this.is_processing = false
+            this.set_hide_button_loading(false)
             // hide overlays and badge explicitly
             if (this.hover_mask) this.hover_mask.style.display = 'none'
             if (this.selected_mask) this.selected_mask.style.display = 'none'
@@ -340,7 +344,38 @@ export class Selection_Overlay {
         )
     }
 
+    set_hide_button_loading(loading) {
+        if (!this.hide_button) {
+            console.warn('Hide button not found for loading state')
+            return
+        }
+        
+        console.log('Setting hide button loading state:', loading)
+        
+        if (loading) {
+            this.hide_button.disabled = true
+            this.hide_button.classList.add('adsd-loading')
+            const originalText = this.hide_button.textContent
+            this.hide_button.setAttribute('data-original-text', originalText)
+            this.hide_button.textContent = 'Hiding...'
+        } else {
+            this.hide_button.disabled = false
+            this.hide_button.classList.remove('adsd-loading')
+            const originalText = this.hide_button.getAttribute('data-original-text')
+            if (originalText) {
+                this.hide_button.textContent = originalText
+                this.hide_button.removeAttribute('data-original-text')
+            }
+        }
+    }
+
     async save_with_expiry(seconds) {
+        // Prevent multiple simultaneous requests
+        if (this.is_processing) {
+            console.log('Request already in progress, ignoring...')
+            return
+        }
+        
         const el = this.state.selected_target || this.state.hover_target
         if (!el) return
         const candidates = this.get_xpath_candidates(el)
@@ -350,15 +385,25 @@ export class Selection_Overlay {
             return
         }
         
-        // Hide element immediately for better UX
-        const originalDisplay = best.element.style.display
-        const originalVisibility = best.element.style.visibility
-        best.element.style.display = 'none'
-        best.element.style.visibility = 'hidden'
+        // Set processing flag and show loading state
+        this.is_processing = true
+        this.set_hide_button_loading(true)
         
         const expires_at = seconds === 0 ? 0 : Math.floor(Date.now() / 1000) + seconds
         try {
-            const res = await this.api.create_rule({xpath: best.xpath, label: '', active: true, expires_at})
+            const res = await this.api.create_rule({
+                xpath: best.xpath, 
+                label: '', 
+                active: true, 
+                expires_at,
+                page_title: document.title,
+                page_url: window.location.href
+            })
+            
+            // Hide element only after successful save
+            best.element.style.display = 'none'
+            best.element.style.visibility = 'hidden'
+            
             this.close_context_menu()
             // Clear selection and remove highlighting after successful save
             this.state.set_selected_target(null)
@@ -372,11 +417,54 @@ export class Selection_Overlay {
             return res
         } catch (err) {
             console.error(err)
-            // Restore element visibility on error
-            best.element.style.display = originalDisplay
-            best.element.style.visibility = originalVisibility
-            // Show error notification
-            this.show_notification(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'), 'error')
+            
+            // Handle duplicate XPath error (409)
+            if (err.status === 409 && err.data && err.data.code === 'duplicate_xpath') {
+                console.log('Duplicate XPath error data:', err.data)
+                const existingRule = err.data.existing_rule || err.data.data?.existing_rule
+                const message = err.data.message || err.data.data?.message || 'A rule for hiding this element already exists. Do you want to activate it?'
+                
+                if (!existingRule || !existingRule.id) {
+                    console.error('No existing rule ID found in error data:', err.data)
+                    this.show_notification('Error: Could not find existing rule details', 'error')
+                    return
+                }
+                
+                if (confirm(message)) {
+                    try {
+                        await this.api.activate_existing_rule(existingRule.id)
+                        
+                        // Hide element only after successful activation
+                        best.element.style.display = 'none'
+                        best.element.style.visibility = 'hidden'
+                        
+                        this.close_context_menu()
+                        // Clear selection and remove highlighting after successful activation
+                        this.state.set_selected_target(null)
+                        this.state.set_hover_target(null)
+                        this.update_visibility()
+                        // Hide overlays
+                        if (this.selected_mask) this.selected_mask.style.display = 'none'
+                        if (this.hover_mask) this.hover_mask.style.display = 'none'
+                        // Show success notification
+                        this.show_notification('Existing rule activated successfully!', 'success')
+                        return
+                    } catch (activateErr) {
+                        console.error('Failed to activate existing rule:', activateErr)
+                        this.show_notification('Failed to activate existing rule', 'error')
+                    }
+                } else {
+                    // User declined
+                    this.show_notification('Operation cancelled', 'info')
+                }
+            } else {
+                // Show error notification for other errors
+                this.show_notification(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'), 'error')
+            }
+        } finally {
+            // Always reset processing flag and hide loading state
+            this.is_processing = false
+            this.set_hide_button_loading(false)
         }
     }
 
@@ -523,31 +611,98 @@ export class Selection_Overlay {
 
     get_xpath_candidates(el) {
         const candidates = []
-        // Option 1: the element itself
+        
+        // Option 1: the element itself (Chrome style)
         try {
             const own = Xpath_Builder.build_from_element(el)
             if (own) candidates.push({label: 'element', xpath: own, element: el})
         } catch (_) {
         }
-        // Option 2..N: parent elements up to body/html
+        
+        // Option 2: Try to find a more specific parent with ID
         let node = el?.parentElement
-        while (node && node instanceof Element && node !== document.documentElement && node !== document.body) {
-            try {
-                const xp = Xpath_Builder.build_from_element(node)
-                if (xp) candidates.push({label: 'ancestor', xpath: xp, element: node})
-            } catch (_) {
+        let depth = 0
+        while (node && node instanceof Element && node !== document.documentElement && depth < 5) {
+            const id = node.getAttribute('id')
+            if (id && Xpath_Builder.is_stable_id(id)) {
+                try {
+                    // Build path from this parent down to target element
+                    const path = this.build_path_from_parent(node, el)
+                    if (path) {
+                        candidates.push({label: 'parent_with_id', xpath: path, element: el})
+                        break
+                    }
+                } catch (_) {
+                }
             }
             node = node.parentElement
+            depth++
         }
-        // Option at body level (for large containers)
-        if (document.body) {
+        
+        // Option 3: Try unique text content if element has text
+        if (el.textContent?.trim() && el.textContent.trim().length > 3 && el.textContent.trim().length < 100) {
             try {
-                const bodyXp = Xpath_Builder.build_from_element(document.body)
-                if (bodyXp) candidates.push({label: 'body', xpath: bodyXp, element: document.body})
+                const textXpath = `//${el.tagName.toLowerCase()}[normalize-space(text())="${Xpath_Builder.escape_attr(el.textContent.trim())}"]`
+                candidates.push({label: 'text_content', xpath: textXpath, element: el})
             } catch (_) {
             }
         }
+        
+        // Option 4: Try data attributes
+        const dataAttrs = ['data-testid', 'data-test', 'data-qa', 'data-id']
+        for (const attr of dataAttrs) {
+            const value = el.getAttribute(attr)
+            if (value) {
+                try {
+                    const dataXpath = `//${el.tagName.toLowerCase()}[@${attr}="${Xpath_Builder.escape_attr(value)}"]`
+                    candidates.push({label: 'data_attribute', xpath: dataXpath, element: el})
+                    break
+                } catch (_) {
+                }
+            }
+        }
+        
         return candidates
+    }
+
+    /**
+     * Build XPath from parent element down to target element
+     * @param {Element} parent - Parent element with ID
+     * @param {Element} target - Target element
+     * @returns {string}
+     */
+    build_path_from_parent(parent, target) {
+        const parentId = parent.getAttribute('id')
+        if (!parentId) return null
+        
+        const segments = []
+        let node = target
+        
+        // Build path from target up to parent
+        while (node && node !== parent && node !== document) {
+            const tagName = node.tagName.toLowerCase()
+            const siblings = Array.from(node.parentElement?.children || [])
+                .filter(sibling => sibling.tagName.toLowerCase() === tagName)
+            
+            let position = 1
+            if (siblings.length > 1) {
+                position = siblings.indexOf(node) + 1
+            }
+            
+            let segment = tagName
+            if (siblings.length > 1) {
+                segment += `[${position}]`
+            }
+            
+            segments.unshift(segment)
+            node = node.parentElement
+        }
+        
+        if (node === parent) {
+            return `//*[@id="${Xpath_Builder.escape_attr(parentId)}"]/${segments.join('/')}`
+        }
+        
+        return null
     }
 
     pick_best_xpath(candidates) {
@@ -571,6 +726,12 @@ export class Selection_Overlay {
     }
 
     async prompt_and_save() {
+        // Prevent multiple simultaneous requests
+        if (this.is_processing) {
+            console.log('Request already in progress, ignoring...')
+            return
+        }
+        
         // Prompt user for duration: 0 (forever), 1h, 24h, 7d
         const choices = [
             {label: __('Forever', 'ads-destroyer'), seconds: 0},
@@ -602,22 +763,76 @@ export class Selection_Overlay {
         }
         const expires_at = sel === 0 ? 0 : Math.floor(Date.now() / 1000) + sel
 
+        // Set processing flag and show loading state
+        this.is_processing = true
+        this.set_hide_button_loading(true)
+
         try {
-            const res = await this.api.create_rule({xpath: best.xpath, label: '', active: true, expires_at})
-            // Remove element immediately from the DOM for instant feedback
-            try {
-                best.element?.remove()
-            } catch (_) {
-            }
+            const res = await this.api.create_rule({
+                xpath: best.xpath, 
+                label: '', 
+                active: true, 
+                expires_at,
+                page_title: document.title,
+                page_url: window.location.href
+            })
+            
+            // Hide element only after successful save
+            best.element.style.display = 'none'
+            best.element.style.visibility = 'hidden'
+            
             this.toggle(false)
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Error saving rule', 'ads-destroyer'))
+            
+            // Handle duplicate XPath error (409)
+            if (err.status === 409 && err.data && err.data.code === 'duplicate_xpath') {
+                console.log('Duplicate XPath error data:', err.data)
+                const existingRule = err.data.existing_rule || err.data.data?.existing_rule
+                const message = err.data.message || err.data.data?.message || 'A rule for hiding this element already exists. Do you want to activate it?'
+                
+                if (!existingRule || !existingRule.id) {
+                    console.error('No existing rule ID found in error data:', err.data)
+                    alert('Error: Could not find existing rule details')
+                    return
+                }
+                
+                if (confirm(message)) {
+                    try {
+                        await this.api.activate_existing_rule(existingRule.id)
+                        
+                        // Hide element only after successful activation
+                        best.element.style.display = 'none'
+                        best.element.style.visibility = 'hidden'
+                        
+                        this.toggle(false)
+                        alert('Existing rule activated successfully!')
+                        return
+                    } catch (activateErr) {
+                        console.error('Failed to activate existing rule:', activateErr)
+                        alert('Failed to activate existing rule')
+                    }
+                } else {
+                    alert('Operation cancelled')
+                }
+            } else {
+                alert(this.config.i18n?.save_failed || __('Error saving rule', 'ads-destroyer'))
+            }
+        } finally {
+            // Always reset processing flag and hide loading state
+            this.is_processing = false
+            this.set_hide_button_loading(false)
         }
     }
 
     async save_current_rule() {
+        // Prevent multiple simultaneous requests
+        if (this.is_processing) {
+            console.log('Request already in progress, ignoring...')
+            return
+        }
+        
         const el = this.state.selected_target || this.state.hover_target
         if (!el) return
         // Collect candidates and pick the best
@@ -641,14 +856,67 @@ export class Selection_Overlay {
         // eslint-disable-next-line no-console
         console.groupEnd()
 
+        // Set processing flag and show loading state
+        this.is_processing = true
+        this.set_hide_button_loading(true)
+
         try {
-            const res = await this.api.create_rule({xpath: best.xpath, label: '', active: true})
+            const res = await this.api.create_rule({
+                xpath: best.xpath, 
+                label: '', 
+                active: true,
+                page_title: document.title,
+                page_url: window.location.href
+            })
+            
+            // Hide element only after successful save
+            best.element.style.display = 'none'
+            best.element.style.visibility = 'hidden'
+            
             // Visual feedback: exit selection mode after save
             this.toggle(false)
             return res
         } catch (err) {
             console.error(err)
-            alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'))
+            
+            // Handle duplicate XPath error (409)
+            if (err.status === 409 && err.data && err.data.code === 'duplicate_xpath') {
+                console.log('Duplicate XPath error data:', err.data)
+                const existingRule = err.data.existing_rule || err.data.data?.existing_rule
+                const message = err.data.message || err.data.data?.message || 'A rule for hiding this element already exists. Do you want to activate it?'
+                
+                if (!existingRule || !existingRule.id) {
+                    console.error('No existing rule ID found in error data:', err.data)
+                    alert('Error: Could not find existing rule details')
+                    return
+                }
+                
+                if (confirm(message)) {
+                    try {
+                        await this.api.activate_existing_rule(existingRule.id)
+                        
+                        // Hide element only after successful activation
+                        best.element.style.display = 'none'
+                        best.element.style.visibility = 'hidden'
+                        
+                        // Visual feedback: exit selection mode after activation
+                        this.toggle(false)
+                        alert('Existing rule activated successfully!')
+                        return
+                    } catch (activateErr) {
+                        console.error('Failed to activate existing rule:', activateErr)
+                        alert('Failed to activate existing rule')
+                    }
+                } else {
+                    alert('Operation cancelled')
+                }
+            } else {
+                alert(this.config.i18n?.save_failed || __('Failed to save the rule', 'ads-destroyer'))
+            }
+        } finally {
+            // Always reset processing flag and hide loading state
+            this.is_processing = false
+            this.set_hide_button_loading(false)
         }
     }
 }
